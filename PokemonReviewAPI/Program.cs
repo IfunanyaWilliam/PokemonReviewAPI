@@ -16,6 +16,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IPokemonRepository, PokemonRepository>();
 
+//Bring in Automapper
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 //Add the DbContext to the builder
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));

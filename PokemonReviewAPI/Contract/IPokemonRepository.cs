@@ -8,7 +8,7 @@ namespace PokemonReviewAPI.Contract
         Task<ICollection<Pokemon>> GetAllPokemonsAsync();
         Task<Pokemon> GetPokemonAsync(Expression<Func<Pokemon, bool>> predicate);
 
-        Task<decimal> GetPokemoneRating(int pokemonId);
-        Task<bool> PokemonExistAsync(int pokemonId);
+        decimal GetPokemoneRating(int pokemonId);
+        bool PokemonExist(int pokemonId);
     }
 }

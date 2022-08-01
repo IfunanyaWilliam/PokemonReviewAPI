@@ -20,10 +20,10 @@ namespace PokemonReviewAPI.Repository
             return await _context.Pokemons.AsQueryable().FirstOrDefaultAsync(predicate);
         }
 
-        public async Task<decimal> GetPokemoneRating(int pokemonId)
+        public decimal GetPokemoneRating(int pokemonId)
         {
             var reviews = _context.Reviews.Where(p => p.Pokemon.Id == pokemonId);
-            if(reviews.Count() <= 0)
+            if(reviews.Count () <= 0)
             {
                 return 0;
             }
@@ -35,7 +35,7 @@ namespace PokemonReviewAPI.Repository
             return await _context.Pokemons.OrderBy(p => p.Id).ToListAsync();
         }
 
-        public async Task<bool> PokemonExistAsync(int pokemonId)
+        public bool PokemonExist(int pokemonId)
         {
             return _context.Pokemons.Any(p => p.Id == pokemonId);
         }
