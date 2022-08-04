@@ -7,7 +7,7 @@ namespace PokemonReviewAPI.Contract
         Task<ICollection<Category>> GetAllCategoriesAsync();
         Task<Category> GetCategory(int id);
         Task<ICollection<Pokemon>> GetPokemonByCategory(int categoryId);
-        bool CategoryExist(int id);
+        bool CategoryExists(int id);
     }
 }
  

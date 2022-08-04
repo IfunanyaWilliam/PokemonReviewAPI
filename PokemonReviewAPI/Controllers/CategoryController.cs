@@ -38,7 +38,7 @@ namespace PokemonReviewAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetCategory(int categoryId)
         {
-            var categoryExist = _categoryRepository.CategoryExist(categoryId);
+            var categoryExist = _categoryRepository.CategoryExists(categoryId);
             if (!categoryExist)
             {
                 return NotFound();
@@ -60,7 +60,7 @@ namespace PokemonReviewAPI.Controllers
         public async Task<IActionResult> GetPokemonByCategoryId(int categoryId)
         {
             var pokemon = await _categoryRepository.GetPokemonByCategory(categoryId);
-            var pokemonDto = _mapper.Map<PokemonDTO>(pokemon);
+            var pokemonDto = _mapper.Map<ICollection<PokemonDTO>>(pokemon);
 
             if (!ModelState.IsValid)
             {

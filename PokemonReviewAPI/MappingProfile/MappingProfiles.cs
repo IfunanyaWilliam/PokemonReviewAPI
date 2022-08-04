@@ -9,6 +9,7 @@ namespace PokemonReviewAPI.MappingProfile
         {
             CreateMap<Pokemon, PokemonDTO>();
             CreateMap<Category, CategoryDTO>();
+            CreateMap<Country, CountryDTO>();
         }
     }
 }

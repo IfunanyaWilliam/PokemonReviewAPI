@@ -13,7 +13,7 @@ namespace PokemonReviewAPI.Repository
         {
             _context = context;
         }
-        public bool CategoryExist(int id)
+        public bool CategoryExists(int id)
         {
             return _context.Categories.Any(c => c.Id == id);
         }
