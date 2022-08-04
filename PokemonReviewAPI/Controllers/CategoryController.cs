@@ -21,9 +21,9 @@ namespace PokemonReviewAPI.Controllers
 
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Category>))]
-        public async Task<IActionResult> GetCategories()
+        public IActionResult GetCategories()
         {
-            var categories = await _categoryRepository.GetAllCategoriesAsync();
+            var categories =  _categoryRepository.GetAllCategories();
             var categoryDto = _mapper.Map<List<CategoryDTO>>(categories);
 
             if (!ModelState.IsValid)
@@ -69,5 +69,43 @@ namespace PokemonReviewAPI.Controllers
 
             return Ok(pokemonDto);
         }
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> CreateCategory([FromBody] CategoryDTO categoryDto)
+        {
+            if(categoryDto == null)
+            {
+                return BadRequest(ModelState);
+            }
+            var category = _categoryRepository.GetAllCategories()
+                                              .Where(c => c.Name.Trim().ToUpper() == categoryDto.Name.TrimEnd().ToUpper())
+                                              .FirstOrDefault();
+
+            if(category != null)
+            {
+                ModelState.AddModelError("", "Category already exists");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var categoryMap = _mapper.Map<Category>(categoryDto);
+            var createCategory = await _categoryRepository.CreateCategory(categoryMap);
+            if (!createCategory)
+            {
+                ModelState.AddModelError("", "Something went wrong while creating the Category");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully Created");
+        }
+
+
+
     }
 }

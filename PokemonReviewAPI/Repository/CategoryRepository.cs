@@ -18,9 +18,15 @@ namespace PokemonReviewAPI.Repository
             return _context.Categories.Any(c => c.Id == id);
         }
 
-        public async Task<ICollection<Category>> GetAllCategoriesAsync()
+        public async Task<bool> CreateCategory(Category category)
         {
-            return await _context.Categories.ToListAsync();
+            await _context.AddAsync(category);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public ICollection<Category> GetAllCategories()
+        {
+            return _context.Categories.ToList();
         }
 
         public async Task<Category> GetCategory(int id)
