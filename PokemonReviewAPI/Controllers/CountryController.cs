@@ -22,7 +22,7 @@ namespace PokemonReviewAPI.Controllers
 
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Country>))]
-        public async Task<IActionResult> GetCategories()
+        public async Task<IActionResult> GetCountries()
         {
             var countries = await _countryRepository.GetAllCountriesAsync();
             var countryDto = _mapper.Map<List<CountryDTO>>(countries);
@@ -38,7 +38,7 @@ namespace PokemonReviewAPI.Controllers
         [HttpGet("countryId")]
         [ProducesResponseType(200, Type = typeof(Country))]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> GetCategory(int countryId)
+        public async Task<IActionResult> GetCountry(int countryId)
         {
             var countryExists = _countryRepository.CountryExists(countryId);
             if (!countryExists)
