@@ -21,9 +21,15 @@ namespace PokemonReviewAPI.Repository
             return _context.Countries.Any(c => c.Id == countryId);
         }
 
-        public async Task<ICollection<Country>> GetAllCountriesAsync()
+        public async Task<bool> CreateCountry(Country country)
         {
-            return await _context.Countries.ToListAsync();
+            await _context.AddAsync(country);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public ICollection<Country> GetAllCountries()
+        {
+            return _context.Countries.ToList();
         }
 
         public async Task<Country> GetCountryAsync(int countryId)

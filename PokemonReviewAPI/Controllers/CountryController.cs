@@ -22,9 +22,9 @@ namespace PokemonReviewAPI.Controllers
 
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Country>))]
-        public async Task<IActionResult> GetCountries()
+        public IActionResult GetCountries()
         {
-            var countries = await _countryRepository.GetAllCountriesAsync();
+            var countries = _countryRepository.GetAllCountries();
             var countryDto = _mapper.Map<List<CountryDTO>>(countries);
 
             if (!ModelState.IsValid)
@@ -71,6 +71,42 @@ namespace PokemonReviewAPI.Controllers
             }
 
             return Ok(countryDto);
+        }
+
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> CreateCountry([FromBody] CountryDTO countryDto)
+        {
+            if (countryDto == null)
+            {
+                return BadRequest(ModelState);
+            }
+            var category = _countryRepository.GetAllCountries()
+                                              .Where(c => c.Name.Trim().ToUpper() == countryDto.Name.TrimEnd().ToUpper())
+                                              .FirstOrDefault();
+
+            if (category != null)
+            {
+                ModelState.AddModelError("", "Country already exists");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var countryMap = _mapper.Map<Country>(countryDto);
+            var createCategory = await _countryRepository.CreateCountry(countryMap);
+            if (!createCategory)
+            {
+                ModelState.AddModelError("", "Something went wrong while creating Country");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Country Successfully Created");
         }
 
     }
