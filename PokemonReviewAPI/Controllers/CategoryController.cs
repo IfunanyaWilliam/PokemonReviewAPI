@@ -38,7 +38,7 @@ namespace PokemonReviewAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetCategory(int categoryId)
         {
-            var categoryExist = _categoryRepository.CategoryExists(categoryId);
+            var categoryExist = await _categoryRepository.CategoryExists(categoryId);
             if (!categoryExist)
             {
                 return NotFound();

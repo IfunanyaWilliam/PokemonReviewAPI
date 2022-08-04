@@ -33,18 +33,18 @@ namespace PokemonReviewAPI.Controllers
             return Ok(pokemonDto);
         }
 
-        [HttpGet("pokeId")]
+        [HttpGet("pokemonId")]
         [ProducesResponseType(200, Type =typeof(Pokemon))]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> GetPokemon(int pokeId)
+        public async Task<IActionResult> GetPokemon(int pokemonId)
         {
-            var pokemonExist = _pokemonRepository.PokemonExist(pokeId);
+            var pokemonExist = await _pokemonRepository.PokemonExist(pokemonId);
             if (!pokemonExist)
             {
                 return NotFound();
             }
 
-            var pokemon = await _pokemonRepository.GetPokemonAsync(p => p.Id == pokeId);
+            var pokemon = await _pokemonRepository.GetPokemonAsync(p => p.Id == pokemonId);
             var pokemonDto = _mapper.Map<PokemonDTO>(pokemon);
             if (!ModelState.IsValid)
             {
@@ -58,9 +58,9 @@ namespace PokemonReviewAPI.Controllers
         [HttpGet("pokeId/rating")]
         [ProducesResponseType(200, Type = typeof(decimal))]
         [ProducesResponseType(400)]
-        public IActionResult GetPokemonRating(int pokeId)
+        public async Task<IActionResult> GetPokemonRating(int pokeId)
         {
-            var pokemonExist =  _pokemonRepository.PokemonExist(pokeId);
+            var pokemonExist = await _pokemonRepository.PokemonExist(pokeId);
             if (!pokemonExist)
             {
                 return NotFound();

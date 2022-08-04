@@ -35,9 +35,9 @@ namespace PokemonReviewAPI.Repository
             return await _context.Pokemons.OrderBy(p => p.Id).ToListAsync();
         }
 
-        public bool PokemonExist(int pokemonId)
+        public async Task<bool> PokemonExist(int pokemonId)
         {
-            return _context.Pokemons.Any(p => p.Id == pokemonId);
+            return await _context.Pokemons.AnyAsync(p => p.Id == pokemonId);
         }
     }
 }

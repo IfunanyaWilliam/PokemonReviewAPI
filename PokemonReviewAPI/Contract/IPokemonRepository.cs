@@ -9,6 +9,6 @@ namespace PokemonReviewAPI.Contract
         Task<Pokemon> GetPokemonAsync(Expression<Func<Pokemon, bool>> predicate);
 
         decimal GetPokemoneRating(int pokemonId);
-        bool PokemonExist(int pokemonId);
+        Task<bool> PokemonExist(int pokemonId);
     }
 }

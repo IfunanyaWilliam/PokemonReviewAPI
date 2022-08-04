@@ -40,7 +40,7 @@ namespace PokemonReviewAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetCountry(int countryId)
         {
-            var countryExists = _countryRepository.CountryExists(countryId);
+            var countryExists = await _countryRepository.CountryExists(countryId);
             if (!countryExists)
             {
                 return NotFound();

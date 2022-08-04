@@ -7,17 +7,12 @@ namespace PokemonReviewAPI.MappingProfile
     {
         public MappingProfiles()
         {
-            CreateMap<Pokemon, PokemonDTO>();
-            CreateMap<Category, CategoryDTO>();
-            CreateMap<CategoryDTO, Category>();
-            CreateMap<Country, CountryDTO>();
-            CreateMap<CountryDTO, Country>();
-            CreateMap<Owner, OwnerDTO>();
-            CreateMap<OwnerDTO, Owner>();
-            CreateMap<Review, ReviewDTO>();
-            CreateMap<ReviewDTO, Review>();
-            CreateMap<Reviewer, ReviewerDTO>();
-            CreateMap<ReviewerDTO, Reviewer>();
+            CreateMap<Pokemon, PokemonDTO>().ReverseMap();
+            CreateMap<Category, CategoryDTO>().ReverseMap();
+            CreateMap<Country, CountryDTO>().ReverseMap();
+            CreateMap<Owner, OwnerDTO>().ReverseMap();
+            CreateMap<Review, ReviewDTO>().ReverseMap();
+            CreateMap<Reviewer, ReviewerDTO>().ReverseMap();
         }
     }
 }

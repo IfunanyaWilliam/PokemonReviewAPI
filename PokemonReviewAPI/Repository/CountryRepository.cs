@@ -9,16 +9,14 @@ namespace PokemonReviewAPI.Repository
     public class CountryRepository : ICountryRepository
     {
         private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
 
-        public CountryRepository(AppDbContext context, IMapper mapper)
+        public CountryRepository(AppDbContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
-        public bool CountryExists(int countryId)
+        public async Task<bool> CountryExists(int countryId)
         {
-            return _context.Countries.Any(c => c.Id == countryId);
+            return await _context.Countries.AnyAsync(c => c.Id == countryId);
         }
 
         public async Task<bool> CreateCountry(Country country)

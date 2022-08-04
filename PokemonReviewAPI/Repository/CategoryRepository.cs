@@ -13,9 +13,9 @@ namespace PokemonReviewAPI.Repository
         {
             _context = context;
         }
-        public bool CategoryExists(int id)
+        public async Task<bool> CategoryExists(int id)
         {
-            return _context.Categories.Any(c => c.Id == id);
+            return await _context.Categories.AnyAsync(c => c.Id == id);
         }
 
         public async Task<bool> CreateCategory(Category category)
