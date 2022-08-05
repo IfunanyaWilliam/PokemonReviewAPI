@@ -60,7 +60,7 @@ namespace PokemonReviewAPI.Controllers
         }
 
 
-        [HttpGet("{ownerId/pokemon}")]
+        [HttpGet("{ownerId}/pokemon")]
         [ProducesResponseType(200, Type = typeof(Owner))]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetPokemonByOwner(int ownerId)
@@ -72,7 +72,7 @@ namespace PokemonReviewAPI.Controllers
             }
 
             var pokemons        = _ownerRepo.GetPokemonByOwner(ownerId);
-            var ownerPokemons   = _mapper.Map<List<PokemonDTO>>(pokemons);
+            var ownerPokemons   = _mapper.Map<ICollection<PokemonDTO>>(pokemons);
 
             if (!ModelState.IsValid)
             {
@@ -86,7 +86,7 @@ namespace PokemonReviewAPI.Controllers
 
 
         [HttpPost]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateOwner([FromQuery] int countryId, [FromBody] OwnerDTO ownerDto)
         {

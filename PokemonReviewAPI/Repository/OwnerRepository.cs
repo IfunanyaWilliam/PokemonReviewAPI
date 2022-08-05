@@ -36,7 +36,7 @@ namespace PokemonReviewAPI.Repository
 
         public async Task<ICollection<Pokemon>> GetPokemonByOwner(int ownerId)
         {
-            return await _context.PokemonOwners.Where(p => p.Owner.Id == ownerId).Select(p => p.Pokemon).ToListAsync();
+            return await _context.PokemonOwners.Where(po => po.OwnerId == ownerId).Select(p => p.Pokemon).ToListAsync();
         }
 
         

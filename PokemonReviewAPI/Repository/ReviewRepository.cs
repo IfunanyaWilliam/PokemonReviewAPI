@@ -1,28 +1,36 @@
-﻿using PokemonReviewAPI.Contract;
+﻿using Microsoft.EntityFrameworkCore;
+using PokemonReviewAPI.Contract;
+using PokemonReviewAPI.Data;
 using PokemonReviewAPI.Models;
 
 namespace PokemonReviewAPI.Repository
 {
     public class ReviewRepository : IReviewRepository
     {
-        public Task<ICollection<Review>> GetAllReviewsAsync()
+        private readonly AppDbContext _context;
+
+        public ReviewRepository(AppDbContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
+        }
+        public ICollection<Review> GetAllReviews()
+        {
+            return _context.Reviews.ToList();
         }
 
-        public Task<ICollection<Review>> GetReviewsAsync(int reviewId)
+        public Review GetReview(int reviewId)
         {
-            throw new NotImplementedException();
+            return _context.Reviews.FirstOrDefault(r => r.Id == reviewId);
         }
 
-        public Task<ICollection<Review>> GetReviewsOfAPokemonAsync(int pokemonId)
+        public ICollection<Review> GetReviewsOfAPokemon(int pokemonId)
         {
-            throw new NotImplementedException();
+            return _context.Reviews.Where(r => r.Pokemon.Id == pokemonId).ToList();
         }
 
-        public Task<bool> ReviewExist(int reviewId)
+        public async Task<bool> ReviewExist(int reviewId)
         {
-            throw new NotImplementedException();
+            return await _context.Reviews.AnyAsync(r => r.Id == reviewId);
         }
     }
 }
