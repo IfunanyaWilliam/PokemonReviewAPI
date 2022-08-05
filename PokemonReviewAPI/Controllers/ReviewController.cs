@@ -22,7 +22,7 @@ namespace PokemonReviewAPI.Controllers
 
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Review>))]
-        public IActionResult GetOwners()
+        public IActionResult GetReviews()
         {
             var review = _reviewRepo.GetAllReviews();
             var reviewDto = _mapper.Map<List<ReviewDTO>>(review);
