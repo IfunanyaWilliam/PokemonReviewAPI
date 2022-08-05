@@ -24,7 +24,7 @@ namespace PokemonReviewAPI.Repository
 
         public Reviewer GetReviewer(int reviewerId)
         {
-            return _context.Reviewers.Include(e => e.Reviews).FirstOrDefault(i => i.Id == reviewerId);
+            return _context.Reviewers.Where(i => i.Id == reviewerId).Include(e => e.Reviews).FirstOrDefault();
         }
 
         public ICollection<Review> GetReviewsByReviewer(int reviewerId)
@@ -34,7 +34,7 @@ namespace PokemonReviewAPI.Repository
 
         public Task<bool> ReviewerExists(int reviewerId)
         {
-            return _context.Reviewers.AllAsync(r => r.Id == reviewerId);
+            return _context.Reviewers.AnyAsync(r => r.Id == reviewerId);
         }
     }
 }

@@ -39,5 +39,28 @@ namespace PokemonReviewAPI.Repository
         {
             return await _context.Pokemons.AnyAsync(p => p.Id == pokemonId);
         }
+
+        public async Task<bool> CreatePokemon(int ownerId, int categoryId, Pokemon pokemon)
+        {
+            var pokemonOwnerEntity = await _context.Owners.Where(o => o.Id == ownerId).FirstOrDefaultAsync();
+            var category     = await _context.Categories.Where(c => c.Id == categoryId).FirstOrDefaultAsync();
+
+            var pokemonOwner = new PokemonOwner()
+            {
+                Owner = pokemonOwnerEntity,
+                Pokemon = pokemon,
+            };
+            await _context.AddAsync(pokemonOwner);
+
+            var pokemonCategory = new PokemonCategory()
+            {
+                Category = category,
+                Pokemon = pokemon
+            };
+            await _context.AddAsync(pokemonCategory);
+            await _context.AddAsync(pokemon);
+
+            return await _context.SaveChangesAsync() > 0;
+        }
     }
 }
