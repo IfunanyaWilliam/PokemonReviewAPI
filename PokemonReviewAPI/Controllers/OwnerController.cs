@@ -63,6 +63,7 @@ namespace PokemonReviewAPI.Controllers
         [HttpGet("{ownerId}/pokemon")]
         [ProducesResponseType(200, Type = typeof(Owner))]
         [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetPokemonByOwner(int ownerId)
         {
             var ownerExists = await _ownerRepo.OwnerExists(ownerId);
@@ -86,7 +87,7 @@ namespace PokemonReviewAPI.Controllers
 
 
         [HttpPost]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(20)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateOwner([FromQuery] int countryId, [FromBody] OwnerDTO ownerDto)
         {
