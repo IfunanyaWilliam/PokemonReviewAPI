@@ -5,11 +5,11 @@ namespace PokemonReviewAPI.Contract
 {
     public interface IPokemonRepository
     {
-        Task<ICollection<Pokemon>> GetAllPokemonsAsync();
+        ICollection<Pokemon> GetAllPokemons();
         Task<Pokemon> GetPokemonAsync(Expression<Func<Pokemon, bool>> predicate);
 
         decimal GetPokemoneRating(int pokemonId);
-        Task<bool> PokemonExist(int pokemonId);
+        Task<bool> PokemonExists(int pokemonId);
         Task<bool> CreatePokemon(int ownerId, int categoryId, Pokemon pokemon);
     }
 }

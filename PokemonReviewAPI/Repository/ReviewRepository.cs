@@ -13,6 +13,13 @@ namespace PokemonReviewAPI.Repository
         {
             _context = context;
         }
+
+        public async Task<bool> CreateReview(Review review)
+        {
+            await _context.AddAsync(review);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
         public ICollection<Review> GetAllReviews()
         {
             return _context.Reviews.ToList();
@@ -28,7 +35,7 @@ namespace PokemonReviewAPI.Repository
             return _context.Reviews.Where(r => r.Pokemon.Id == pokemonId).ToList();
         }
 
-        public async Task<bool> ReviewExist(int reviewId)
+        public async Task<bool> ReviewExists(int reviewId)
         {
             return await _context.Reviews.AnyAsync(r => r.Id == reviewId);
         }

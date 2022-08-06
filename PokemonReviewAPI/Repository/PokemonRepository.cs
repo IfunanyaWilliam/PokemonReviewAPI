@@ -30,12 +30,12 @@ namespace PokemonReviewAPI.Repository
             return  ((decimal)reviews.Sum(r => r.Rating) / reviews.Count());
         }
 
-        public async Task<ICollection<Pokemon>> GetAllPokemonsAsync()
+        public ICollection<Pokemon> GetAllPokemons()
         {
-            return await _context.Pokemons.OrderBy(p => p.Id).ToListAsync();
+            return _context.Pokemons.OrderBy(p => p.Id).ToList();
         }
 
-        public async Task<bool> PokemonExist(int pokemonId)
+        public async Task<bool> PokemonExists(int pokemonId)
         {
             return await _context.Pokemons.AnyAsync(p => p.Id == pokemonId);
         }
