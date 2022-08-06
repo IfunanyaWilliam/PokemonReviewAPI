@@ -38,5 +38,11 @@ namespace PokemonReviewAPI.Repository
         {
             return await _context.PokemonCategories.Where(c => c.CategoryId == categoryId).Select(p => p.Pokemon).ToListAsync();
         }
+
+        public async Task<bool> UpdateCategory(Category category)
+        {
+            _context.Categories.Update(category);
+            return await _context.SaveChangesAsync() > 0;
+        }
     }
 }
