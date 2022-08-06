@@ -10,12 +10,12 @@ namespace PokemonReviewAPI.Controllers
     [ApiController]
     public class CountryController : Controller
     {
-        private readonly ICountryRepository _countryRepository;
+        private readonly ICountryRepository _countryRepo;
         private readonly IMapper _mapper;
 
         public CountryController(ICountryRepository countryRepository, IMapper mapper)
         {
-            _countryRepository = countryRepository;
+            _countryRepo = countryRepository;
             _mapper = mapper;
         }
 
@@ -24,7 +24,7 @@ namespace PokemonReviewAPI.Controllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<Country>))]
         public IActionResult GetCountries()
         {
-            var countries = _countryRepository.GetAllCountries();
+            var countries = _countryRepo.GetAllCountries();
             var countryDto = _mapper.Map<List<CountryDTO>>(countries);
 
             if (!ModelState.IsValid)
@@ -40,13 +40,13 @@ namespace PokemonReviewAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetCountry(int countryId)
         {
-            var countryExists = await _countryRepository.CountryExists(countryId);
+            var countryExists = await _countryRepo.CountryExists(countryId);
             if (!countryExists)
             {
                 return NotFound();
             }
 
-            var country = await _countryRepository.GetCountryAsync(countryId);
+            var country = await _countryRepo.GetCountryAsync(countryId);
             var countryDto = _mapper.Map<CountryDTO>(country);
             if (!ModelState.IsValid)
             {
@@ -62,7 +62,7 @@ namespace PokemonReviewAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetCountryOfOwner(int ownerId)
         {
-            var country = await _countryRepository.GetCountryByOwnerAsync(ownerId);
+            var country = await _countryRepo.GetCountryByOwnerAsync(ownerId);
             var countryDto = _mapper.Map<CountryDTO>(country);
 
             if (!ModelState.IsValid)
@@ -83,7 +83,7 @@ namespace PokemonReviewAPI.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var category = _countryRepository.GetAllCountries()
+            var category = _countryRepo.GetAllCountries()
                                               .Where(c => c.Name.Trim().ToUpper() == countryDto.Name.TrimEnd().ToUpper())
                                               .FirstOrDefault();
 
@@ -99,7 +99,7 @@ namespace PokemonReviewAPI.Controllers
             }
 
             var countryMap = _mapper.Map<Country>(countryDto);
-            var createCategory = await _countryRepository.CreateCountry(countryMap);
+            var createCategory = await _countryRepo.CreateCountry(countryMap);
             if (!createCategory)
             {
                 ModelState.AddModelError("", "Something went wrong while creating Country");
@@ -107,6 +107,46 @@ namespace PokemonReviewAPI.Controllers
             }
 
             return Ok("Country Successfully Created");
+        }
+
+
+        [HttpPut("{countryId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> UpdateCountry(int countryId, [FromBody] CountryDTO countryDto)
+        {
+            if (countryDto == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if(countryId != countryDto.Id)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var country = await _countryRepo.CountryExists(countryId);
+            if (!country)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var countryMap = _mapper.Map<Country>(countryDto);
+            var updateCategory = await _countryRepo.UpdateCountry(countryMap);
+            if (!updateCategory)
+            {
+                ModelState.AddModelError("", "Category could not be upddated");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+
         }
 
     }

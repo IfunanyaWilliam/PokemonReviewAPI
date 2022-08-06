@@ -118,6 +118,11 @@ namespace PokemonReviewAPI.Controllers
                 return BadRequest(ModelState);
             }
 
+            if (categoryId != categoryDto.Id)
+            {
+                return BadRequest(ModelState);
+            }
+
             var category = await _categoryRepo.CategoryExists(categoryId);
             if (!category)
             {

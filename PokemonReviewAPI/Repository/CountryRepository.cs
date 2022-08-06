@@ -44,5 +44,11 @@ namespace PokemonReviewAPI.Repository
         {
             return await _context.Owners.Where(c => c.Country.Id == countryId).ToListAsync();
         }
+
+        public async Task<bool> UpdateCountry(Country country)
+        {
+            _context.Countries.Update(country);
+            return await _context.SaveChangesAsync() > 0;
+        }
     }
 }

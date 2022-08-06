@@ -12,5 +12,6 @@ namespace PokemonReviewAPI.Contract
         Task<bool> CountryExists (int countryId);
 
         Task<bool> CreateCountry(Country country);
+        Task<bool> UpdateCountry(Country country);
     }
 }
