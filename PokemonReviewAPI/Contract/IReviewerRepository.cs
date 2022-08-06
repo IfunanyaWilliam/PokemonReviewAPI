@@ -8,5 +8,6 @@ namespace PokemonReviewAPI.Contract
         Reviewer GetReviewer(int reviewerId);
         ICollection<Review> GetReviewsByReviewer(int reviewerId);
         Task<bool> ReviewerExists(int reviewerId);
+        Task<bool> CreateReviewer(Reviewer reviewer);
     }
 }

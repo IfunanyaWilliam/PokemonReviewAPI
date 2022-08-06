@@ -84,7 +84,7 @@ namespace PokemonReviewAPI.Controllers
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> CreatePokemon([FromQuery] int reviewerId, [FromQuery] int pokemonId, [FromBody] ReviewDTO reviewDto)
+        public async Task<IActionResult> CreateReview([FromQuery] int reviewerId, [FromQuery] int pokemonId, [FromBody] ReviewDTO reviewDto)
         {
             if (reviewDto == null)
             {

@@ -17,6 +17,12 @@ namespace PokemonReviewAPI.Repository
             _mapper = mapper;
         }
 
+        public async Task<bool> CreateReviewer(Reviewer reviewer)
+        {
+            await _context.AddAsync(reviewer);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
         public ICollection<Reviewer> GetAllReviewers()
         {
             return _context.Reviewers.ToList();
