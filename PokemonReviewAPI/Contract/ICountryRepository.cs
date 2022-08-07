@@ -9,9 +9,9 @@ namespace PokemonReviewAPI.Contract
 
         Task<Country> GetCountryByOwnerAsync(int ownerId);
         Task<ICollection<Owner>> GetOwnersFromACountryAsync(int countryId);
-        Task<bool> CountryExists (int countryId);
+        Task<bool> CountryExistsAsync(int countryId);
 
-        Task<bool> CreateCountry(Country country);
-        Task<bool> UpdateCountry(Country country);
+        Task<bool> CreateCountryAsync(Country country);
+        Task<bool> UpdateCountryAsync(Country country);
     }
 }

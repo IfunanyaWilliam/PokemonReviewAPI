@@ -10,12 +10,12 @@ namespace PokemonReviewAPI.Controllers
     [ApiController]
     public class PokemonController : Controller
     {
-        private readonly IPokemonRepository _pokemonRepository;
+        private readonly IPokemonRepository _pokemonRepo;
         private readonly IMapper _mapper;
 
         public PokemonController(IPokemonRepository pokemonRepository, IMapper mapper)
         {
-            _pokemonRepository = pokemonRepository;
+            _pokemonRepo = pokemonRepository;
             _mapper = mapper;
         }
 
@@ -23,7 +23,7 @@ namespace PokemonReviewAPI.Controllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<Pokemon>))]
         public IActionResult GetPokemons()
         {
-            var pokemon = _pokemonRepository.GetAllPokemons();
+            var pokemon = _pokemonRepo.GetAllPokemons();
             var pokemonDto = _mapper.Map<List<PokemonDTO>>(pokemon);
 
             if (!ModelState.IsValid)
@@ -38,13 +38,13 @@ namespace PokemonReviewAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetPokemon(int pokemonId)
         {
-            var pokemonExist = await _pokemonRepository.PokemonExists(pokemonId);
+            var pokemonExist = await _pokemonRepo.PokemonExistsAsync(pokemonId);
             if (!pokemonExist)
             {
                 return NotFound();
             }
 
-            var pokemon = await _pokemonRepository.GetPokemonAsync(p => p.Id == pokemonId);
+            var pokemon = await _pokemonRepo.GetPokemonAsync(p => p.Id == pokemonId);
             var pokemonDto = _mapper.Map<PokemonDTO>(pokemon);
             if (!ModelState.IsValid)
             {
@@ -60,13 +60,13 @@ namespace PokemonReviewAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetPokemonRating(int pokeId)
         {
-            var pokemonExist = await _pokemonRepository.PokemonExists(pokeId);
+            var pokemonExist = await _pokemonRepo.PokemonExistsAsync(pokeId);
             if (!pokemonExist)
             {
                 return NotFound();
             }
 
-            var pokemonRating = _pokemonRepository.GetPokemoneRating(pokeId);
+            var pokemonRating = _pokemonRepo.GetPokemoneRating(pokeId);
             if (!ModelState.IsValid)
             {
                 return BadRequest();
@@ -85,7 +85,7 @@ namespace PokemonReviewAPI.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var pokemons = _pokemonRepository.GetAllPokemons()
+            var pokemons = _pokemonRepo.GetAllPokemons()
                                               .Where(c => c.Name.Trim().ToUpper() == pokemonDto.Name.TrimEnd().ToUpper())
                                               .FirstOrDefault();
 
@@ -101,7 +101,7 @@ namespace PokemonReviewAPI.Controllers
             }
 
             var pokemonMap = _mapper.Map<Pokemon>(pokemonDto);
-            var createPokemon = await _pokemonRepository.CreatePokemon(ownerId, categoryId, pokemonMap);
+            var createPokemon = await _pokemonRepo.CreatePokemonAsync(ownerId, categoryId, pokemonMap);
             if (!createPokemon)
             {
                 ModelState.AddModelError("", "Something went wrong while creating the Pokemon");
@@ -109,6 +109,45 @@ namespace PokemonReviewAPI.Controllers
             }
 
             return Ok("Successfully Created");
+        }
+
+        [HttpPut("{pokemonId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> UpdatePokemon([FromQuery] int ownerId, [FromQuery] int categoryId, int pokemonId, [FromBody] PokemonDTO pokemonDto)
+        {
+            if (pokemonDto == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (pokemonId != pokemonDto.Id)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var pokemon = await _pokemonRepo.PokemonExistsAsync(pokemonId);
+            if (!pokemon)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var pokemonMap = _mapper.Map<Pokemon>(pokemonDto);
+            var updatePokemon = await _pokemonRepo.UpdatePokemonAsync(ownerId, categoryId, pokemonMap);
+            if (!updatePokemon)
+            {
+                ModelState.AddModelError("", "Pokemon could not be upddated");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+
         }
     }
 }

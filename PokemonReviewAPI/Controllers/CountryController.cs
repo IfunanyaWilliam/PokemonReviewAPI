@@ -40,7 +40,7 @@ namespace PokemonReviewAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetCountry(int countryId)
         {
-            var countryExists = await _countryRepo.CountryExists(countryId);
+            var countryExists = await _countryRepo.CountryExistsAsync(countryId);
             if (!countryExists)
             {
                 return NotFound();
@@ -99,7 +99,7 @@ namespace PokemonReviewAPI.Controllers
             }
 
             var countryMap = _mapper.Map<Country>(countryDto);
-            var createCategory = await _countryRepo.CreateCountry(countryMap);
+            var createCategory = await _countryRepo.CreateCountryAsync(countryMap);
             if (!createCategory)
             {
                 ModelState.AddModelError("", "Something went wrong while creating Country");
@@ -126,7 +126,7 @@ namespace PokemonReviewAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            var country = await _countryRepo.CountryExists(countryId);
+            var country = await _countryRepo.CountryExistsAsync(countryId);
             if (!country)
             {
                 return NotFound();
@@ -138,7 +138,7 @@ namespace PokemonReviewAPI.Controllers
             }
 
             var countryMap = _mapper.Map<Country>(countryDto);
-            var updateCategory = await _countryRepo.UpdateCountry(countryMap);
+            var updateCategory = await _countryRepo.UpdateCountryAsync(countryMap);
             if (!updateCategory)
             {
                 ModelState.AddModelError("", "Category could not be upddated");

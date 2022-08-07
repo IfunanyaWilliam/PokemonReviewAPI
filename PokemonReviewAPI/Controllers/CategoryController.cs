@@ -38,7 +38,7 @@ namespace PokemonReviewAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetCategory(int categoryId)
         {
-            var categoryExist = await _categoryRepo.CategoryExists(categoryId);
+            var categoryExist = await _categoryRepo.CategoryExistsAsync(categoryId);
             if (!categoryExist)
             {
                 return NotFound();
@@ -96,7 +96,7 @@ namespace PokemonReviewAPI.Controllers
             }
 
             var categoryMap = _mapper.Map<Category>(categoryDto);
-            var createCategory = await _categoryRepo.CreateCategory(categoryMap);
+            var createCategory = await _categoryRepo.CreateCategoryAsync(categoryMap);
             if (!createCategory)
             {
                 ModelState.AddModelError("", "Something went wrong while creating the Category");
@@ -123,7 +123,7 @@ namespace PokemonReviewAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            var category = await _categoryRepo.CategoryExists(categoryId);
+            var category = await _categoryRepo.CategoryExistsAsync(categoryId);
             if (!category)
             {
                 return NotFound();
@@ -134,9 +134,8 @@ namespace PokemonReviewAPI.Controllers
                 return BadRequest();
             }
 
-            categoryDto.Id = categoryId;
             var categoryMap = _mapper.Map<Category>(categoryDto);
-            var updateCategory = await _categoryRepo.UpdateCategory(categoryMap);
+            var updateCategory = await _categoryRepo.UpdateCategoryAsync(categoryMap);
             if (!updateCategory)
             {
                 ModelState.AddModelError("", "Category could not be upddated");

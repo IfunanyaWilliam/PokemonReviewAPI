@@ -14,12 +14,12 @@ namespace PokemonReviewAPI.Repository
         {
             _context = context;
         }
-        public async Task<bool> CountryExists(int countryId)
+        public async Task<bool> CountryExistsAsync(int countryId)
         {
             return await _context.Countries.AnyAsync(c => c.Id == countryId);
         }
 
-        public async Task<bool> CreateCountry(Country country)
+        public async Task<bool> CreateCountryAsync(Country country)
         {
             await _context.AddAsync(country);
             return await _context.SaveChangesAsync() > 0;
@@ -45,7 +45,7 @@ namespace PokemonReviewAPI.Repository
             return await _context.Owners.Where(c => c.Country.Id == countryId).ToListAsync();
         }
 
-        public async Task<bool> UpdateCountry(Country country)
+        public async Task<bool> UpdateCountryAsync(Country country)
         {
             _context.Countries.Update(country);
             return await _context.SaveChangesAsync() > 0;

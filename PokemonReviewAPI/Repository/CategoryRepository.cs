@@ -13,12 +13,12 @@ namespace PokemonReviewAPI.Repository
         {
             _context = context;
         }
-        public async Task<bool> CategoryExists(int id)
+        public async Task<bool> CategoryExistsAsync(int id)
         {
             return await _context.Categories.AnyAsync(c => c.Id == id);
         }
 
-        public async Task<bool> CreateCategory(Category category)
+        public async Task<bool> CreateCategoryAsync(Category category)
         {
             await _context.AddAsync(category);
             return await _context.SaveChangesAsync() > 0;
@@ -39,7 +39,7 @@ namespace PokemonReviewAPI.Repository
             return await _context.PokemonCategories.Where(c => c.CategoryId == categoryId).Select(p => p.Pokemon).ToListAsync();
         }
 
-        public async Task<bool> UpdateCategory(Category category)
+        public async Task<bool> UpdateCategoryAsync(Category category)
         {
             _context.Categories.Update(category);
             return await _context.SaveChangesAsync() > 0;

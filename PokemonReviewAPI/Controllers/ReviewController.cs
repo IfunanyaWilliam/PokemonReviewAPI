@@ -47,7 +47,7 @@ namespace PokemonReviewAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetReview(int reviewId)
         {
-            var reviewExist = await _reviewRepo.ReviewExists(reviewId);
+            var reviewExist = await _reviewRepo.ReviewExistsAsync(reviewId);
             if (!reviewExist)
             {
                 return NotFound();
@@ -109,7 +109,7 @@ namespace PokemonReviewAPI.Controllers
             var reviewMap = _mapper.Map<Review>(reviewDto);
             reviewMap.Pokemon = await _pokemonRepo.GetPokemonAsync(p => p.Id == pokemonId);
             reviewMap.Reviewer = _reviewerRepo.GetReviewer(reviewerId);
-            var createReview = await _reviewRepo.CreateReview(reviewMap);
+            var createReview = await _reviewRepo.CreateReviewAsync(reviewMap);
             if (!createReview)
             {
                 ModelState.AddModelError("", "Something went wrong while creating the Review");
@@ -117,6 +117,44 @@ namespace PokemonReviewAPI.Controllers
             }
 
             return Ok("Review Successfully Created");
+        }
+
+        [HttpPut("{reviewId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> UpdateReview(int reviewId, [FromBody] ReviewDTO reviewDto)
+        {
+            if (reviewDto == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (reviewId != reviewDto.Id)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var review = await _reviewRepo.ReviewExistsAsync(reviewId);
+            if (!review)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var reviewMap = _mapper.Map<Review>(reviewDto);
+            var updateReview = await _reviewRepo.UpdateReviewAsync(reviewMap);
+            if (!updateReview)
+            {
+                ModelState.AddModelError("", "Review could not be upddated");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
         }
     }
 }

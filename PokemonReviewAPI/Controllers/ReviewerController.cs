@@ -40,7 +40,7 @@ namespace PokemonReviewAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetReviewer(int reviewerId)
         {
-            var reviewerExist = await _reviewerRepo.ReviewerExists(reviewerId);
+            var reviewerExist = await _reviewerRepo.ReviewerExistsAsync(reviewerId);
             if (!reviewerExist)
             {
                 return NotFound();
@@ -60,7 +60,7 @@ namespace PokemonReviewAPI.Controllers
         //[ProducesResponseType(200, Type = typeof(Reviewer))]
         public async Task<IActionResult> GetReviewsByAReviewer(int reviewerId)
         {
-            var reviewerExist = await _reviewerRepo.ReviewerExists(reviewerId);
+            var reviewerExist = await _reviewerRepo.ReviewerExistsAsync(reviewerId);
             if (!reviewerExist)
             {
                 return NotFound();
@@ -102,7 +102,7 @@ namespace PokemonReviewAPI.Controllers
             }
 
             var reviewerMap = _mapper.Map<Reviewer>(reviewerDto);
-            var createReviewer = await _reviewerRepo.CreateReviewer(reviewerMap);
+            var createReviewer = await _reviewerRepo.CreateReviewerAsync(reviewerMap);
             if (!createReviewer)
             {
                 ModelState.AddModelError("", "Something went wrong while creating the Reviewer");
@@ -112,5 +112,43 @@ namespace PokemonReviewAPI.Controllers
             return Ok("Reviewer Successfully Created");
         }
 
+
+        [HttpPut("{reviewerId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> UpdateReviewer(int reviewerId, [FromBody] ReviewerDTO reviewerDto)
+        {
+            if (reviewerDto == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (reviewerId != reviewerDto.Id)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var reviewer = await _reviewerRepo.ReviewerExistsAsync(reviewerId);
+            if (!reviewer)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var reviewerMap = _mapper.Map<Reviewer>(reviewerDto);
+            var updateReviewer = await _reviewerRepo.UpdateReviewerAsync(reviewerMap);
+            if (!updateReviewer)
+            {
+                ModelState.AddModelError("", "Reviewer could not be upddated");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
     }
 }

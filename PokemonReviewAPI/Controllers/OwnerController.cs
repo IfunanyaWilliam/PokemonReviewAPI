@@ -43,7 +43,7 @@ namespace PokemonReviewAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetOwner(int ownerId)
         {
-            var ownerExist = await _ownerRepo.OwnerExists(ownerId);
+            var ownerExist = await _ownerRepo.OwnerExistsAsync(ownerId);
             if (!ownerExist)
             {
                 return NotFound();
@@ -66,7 +66,7 @@ namespace PokemonReviewAPI.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> GetPokemonByOwner(int ownerId)
         {
-            var ownerExists = await _ownerRepo.OwnerExists(ownerId);
+            var ownerExists = await _ownerRepo.OwnerExistsAsync(ownerId);
             if (!ownerExists)
             {
                 return NotFound();
@@ -115,7 +115,7 @@ namespace PokemonReviewAPI.Controllers
             //Insert the country of the owner
             ownerMap.Country = await _countryRepo.GetCountryAsync(countryId);
 
-            var createCategory = await _ownerRepo.CreateOwner(ownerMap);
+            var createCategory = await _ownerRepo.CreateOwnerAsync(ownerMap);
             if (!createCategory)
             {
                 ModelState.AddModelError("", "Something went wrong while creating the Owner");
@@ -124,5 +124,45 @@ namespace PokemonReviewAPI.Controllers
 
             return Ok("Owner Successfully Created");
         }
+
+
+        [HttpPut("{ownerId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> UpdateOwner(int ownerId, [FromBody] OwnerDTO ownerDto)
+        {
+            if (ownerDto == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (ownerId != ownerDto.Id)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var owner = await _ownerRepo.OwnerExistsAsync(ownerId);
+            if (!owner)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var ownerMap = _mapper.Map<Owner>(ownerDto);
+            var updateOwner = await _ownerRepo.UpdateOwnerAsync(ownerMap);
+            if (!updateOwner)
+            {
+                ModelState.AddModelError("", "Owner could not be upddated");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
+
     }
 }

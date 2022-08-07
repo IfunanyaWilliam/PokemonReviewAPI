@@ -35,12 +35,12 @@ namespace PokemonReviewAPI.Repository
             return _context.Pokemons.OrderBy(p => p.Id).ToList();
         }
 
-        public async Task<bool> PokemonExists(int pokemonId)
+        public async Task<bool> PokemonExistsAsync(int pokemonId)
         {
             return await _context.Pokemons.AnyAsync(p => p.Id == pokemonId);
         }
 
-        public async Task<bool> CreatePokemon(int ownerId, int categoryId, Pokemon pokemon)
+        public async Task<bool> CreatePokemonAsync(int ownerId, int categoryId, Pokemon pokemon)
         {
             var pokemonOwnerEntity = await _context.Owners.Where(o => o.Id == ownerId).FirstOrDefaultAsync();
             var category     = await _context.Categories.Where(c => c.Id == categoryId).FirstOrDefaultAsync();
@@ -60,6 +60,12 @@ namespace PokemonReviewAPI.Repository
             await _context.AddAsync(pokemonCategory);
             await _context.AddAsync(pokemon);
 
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> UpdatePokemonAsync(int ownerId, int categoryId, Pokemon pokemon)
+        {
+            _context.Update(pokemon);
             return await _context.SaveChangesAsync() > 0;
         }
     }
