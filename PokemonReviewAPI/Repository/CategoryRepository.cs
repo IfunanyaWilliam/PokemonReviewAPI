@@ -24,12 +24,18 @@ namespace PokemonReviewAPI.Repository
             return await _context.SaveChangesAsync() > 0;
         }
 
+        public async Task<bool> DeleteCategoryAsync(Category category)
+        {
+            _context.Remove(category);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
         public ICollection<Category> GetAllCategories()
         {
             return _context.Categories.ToList();
         }
 
-        public async Task<Category> GetCategory(int id)
+        public async Task<Category> GetCategoryAsync(int id)
         {
             return await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
         }

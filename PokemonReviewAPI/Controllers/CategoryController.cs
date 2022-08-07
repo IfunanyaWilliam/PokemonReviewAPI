@@ -44,7 +44,7 @@ namespace PokemonReviewAPI.Controllers
                 return NotFound();
             }
 
-            var category = await _categoryRepo.GetCategory(categoryId);
+            var category = await _categoryRepo.GetCategoryAsync(categoryId);
             var categoryDto = _mapper.Map<CategoryDTO>(category);
             if (!ModelState.IsValid)
             {
@@ -143,8 +143,34 @@ namespace PokemonReviewAPI.Controllers
             }
 
             return NoContent();
-
         }
 
+        [HttpDelete("{categoryId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> DeleteCategory(int categoryId)
+        {
+            var category = await _categoryRepo.CategoryExistsAsync(categoryId);
+            if (!category)
+            {
+                return NotFound();
+            }
+
+            var categoryToDelete = await _categoryRepo.GetCategoryAsync(categoryId);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var deleteCategory = await _categoryRepo.DeleteCategoryAsync(categoryToDelete);
+            if (!deleteCategory)
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting category");
+            }
+
+            return NoContent();
+        }
     }
 }
