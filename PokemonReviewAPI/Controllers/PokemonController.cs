@@ -11,11 +11,15 @@ namespace PokemonReviewAPI.Controllers
     public class PokemonController : Controller
     {
         private readonly IPokemonRepository _pokemonRepo;
+        private readonly IReviewRepository _reviewRepo;
         private readonly IMapper _mapper;
 
-        public PokemonController(IPokemonRepository pokemonRepository, IMapper mapper)
+        public PokemonController(IPokemonRepository pokemonRepository,
+                                 IReviewRepository reviewRepo,
+                                 IMapper mapper)
         {
             _pokemonRepo = pokemonRepository;
+            _reviewRepo = reviewRepo;
             _mapper = mapper;
         }
 
@@ -147,7 +151,41 @@ namespace PokemonReviewAPI.Controllers
             }
 
             return NoContent();
+        }
 
+        [HttpDelete("{pokemonId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> DeletePokemon(int pokemonId)
+        {
+            var pokemon = await _pokemonRepo.PokemonExistsAsync(pokemonId);
+            if (!pokemon)
+            {
+                return NotFound();
+            }
+
+             
+            var reviewsToDelete = _reviewRepo.GetReviewsOfAPokemon(pokemonId);
+            var pokemonToDelete = await _pokemonRepo.GetPokemonAsync(p => p.Id == pokemonId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            //Delete reviews associated with a pokemon
+            var deleteReviews = await _reviewRepo.DeleteReviewsAsync(reviewsToDelete.ToList());
+            if (!deleteReviews)
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting reviews");
+            }
+
+            var deletePokemon = await _pokemonRepo.DeletePokemonAsync(pokemonToDelete);
+            if (!deletePokemon)
+            {
+                ModelState.AddModelError("", "Something went wrong deleting pokemon");
+            }
+
+            return NoContent();
         }
     }
 }

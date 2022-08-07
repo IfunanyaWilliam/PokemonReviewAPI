@@ -68,5 +68,11 @@ namespace PokemonReviewAPI.Repository
             _context.Update(pokemon);
             return await _context.SaveChangesAsync() > 0;
         }
+
+        public async Task<bool> DeletePokemonAsync(Pokemon pokemon)
+        {
+           _context.Remove(pokemon);
+           return await _context.SaveChangesAsync() > 0;
+        }
     }
 }
