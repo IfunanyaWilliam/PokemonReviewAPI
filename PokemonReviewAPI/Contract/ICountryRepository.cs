@@ -13,5 +13,6 @@ namespace PokemonReviewAPI.Contract
 
         Task<bool> CreateCountryAsync(Country country);
         Task<bool> UpdateCountryAsync(Country country);
+        Task<bool> DeleteCountryAsync(Country country);
     }
 }

@@ -25,6 +25,12 @@ namespace PokemonReviewAPI.Repository
             return await _context.SaveChangesAsync() > 0;
         }
 
+        public async Task<bool> DeleteCountryAsync(Country country)
+        {
+            _context.Remove(country);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
         public ICollection<Country> GetAllCountries()
         {
             return _context.Countries.ToList();
