@@ -11,5 +11,6 @@ namespace PokemonReviewAPI.Contract
         Task<bool> OwnerExistsAsync(int ownerId);
         Task<bool> CreateOwnerAsync(Owner owner);
         Task<bool> UpdateOwnerAsync(Owner owner);
+        Task<bool> DeleteOwnerAsync(Owner owner);
     }
 }
