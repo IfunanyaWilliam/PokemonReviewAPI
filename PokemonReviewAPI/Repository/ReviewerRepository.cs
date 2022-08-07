@@ -23,6 +23,12 @@ namespace PokemonReviewAPI.Repository
             return await _context.SaveChangesAsync() > 0;
         }
 
+        public async Task<bool> DeleteReviewerAsync(Reviewer reviewer)
+        {
+            _context.Remove(reviewer);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
         public ICollection<Reviewer> GetAllReviewers()
         {
             return _context.Reviewers.ToList();

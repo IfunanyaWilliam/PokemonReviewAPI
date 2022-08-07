@@ -34,10 +34,9 @@ namespace PokemonReviewAPI.Controllers
             var review = _reviewRepo.GetAllReviews();
             var reviewDto = _mapper.Map<List<ReviewDTO>>(review);
 
-            if (!ModelState.IsValid)
-            {
+            if(!ModelState.IsValid)
                 return BadRequest(ModelState);
-            }
+
             return Ok(reviewDto);
         }
 
@@ -48,17 +47,14 @@ namespace PokemonReviewAPI.Controllers
         public async Task<IActionResult> GetReview(int reviewId)
         {
             var reviewExist = await _reviewRepo.ReviewExistsAsync(reviewId);
-            if (!reviewExist)
-            {
+            if(!reviewExist)
                 return NotFound();
-            }
 
             var review = _reviewRepo.GetReview(reviewId);
             var reviewDto = _mapper.Map<ReviewDTO>(review);
-            if (!ModelState.IsValid)
-            {
+
+            if(!ModelState.IsValid)
                 return BadRequest(ModelState);
-            }
 
             return Ok(reviewDto);
         }
@@ -72,10 +68,8 @@ namespace PokemonReviewAPI.Controllers
             var pokemonReviews = _reviewRepo.GetReviewsOfAPokemon(pokemonId);
             var reviewsDto = _mapper.Map<List<ReviewDTO>>(pokemonReviews);
 
-            if (!ModelState.IsValid)
-            {
+            if(!ModelState.IsValid)
                 return BadRequest(ModelState);
-            }
 
             return Ok(reviewsDto);
         }
@@ -86,35 +80,29 @@ namespace PokemonReviewAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateReview([FromQuery] int reviewerId, [FromQuery] int pokemonId, [FromBody] ReviewDTO reviewDto)
         {
-            if (reviewDto == null)
-            {
+            if(reviewDto == null)
                 return BadRequest(ModelState);
-            }
-            var reviews = _reviewRepo.GetAllReviews()
-                                              .Where(c => c.Text.Trim().ToUpper() == reviewDto.Text.TrimEnd().ToUpper())
-                                              .FirstOrDefault();
 
-            if (reviews != null)
-            {
+            var reviews = _reviewRepo.GetAllReviews()
+                                     .Where(c => c.Text.Trim().ToUpper() == reviewDto.Text.TrimEnd().ToUpper())
+                                     .FirstOrDefault();
+
+            if(reviews != null)
                 ModelState.AddModelError("", "Review already exists");
                 return StatusCode(422, ModelState);
-            }
 
-            if (!ModelState.IsValid)
-            {
+            if(!ModelState.IsValid)
                 return BadRequest(ModelState);
-            }
 
 
             var reviewMap = _mapper.Map<Review>(reviewDto);
             reviewMap.Pokemon = await _pokemonRepo.GetPokemonAsync(p => p.Id == pokemonId);
             reviewMap.Reviewer = _reviewerRepo.GetReviewer(reviewerId);
             var createReview = await _reviewRepo.CreateReviewAsync(reviewMap);
-            if (!createReview)
-            {
+
+            if(!createReview)
                 ModelState.AddModelError("", "Something went wrong while creating the Review");
                 return StatusCode(500, ModelState);
-            }
 
             return Ok("Review Successfully Created");
         }
@@ -125,34 +113,25 @@ namespace PokemonReviewAPI.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> UpdateReview(int reviewId, [FromBody] ReviewDTO reviewDto)
         {
-            if (reviewDto == null)
-            {
+            if(reviewDto == null)
                 return BadRequest(ModelState);
-            }
 
-            if (reviewId != reviewDto.Id)
-            {
+            if(reviewId != reviewDto.Id)
                 return BadRequest(ModelState);
-            }
 
             var review = await _reviewRepo.ReviewExistsAsync(reviewId);
-            if (!review)
-            {
+            if(!review)
                 return NotFound();
-            }
 
-            if (!ModelState.IsValid)
-            {
+            if(!ModelState.IsValid)
                 return BadRequest();
-            }
 
             var reviewMap = _mapper.Map<Review>(reviewDto);
             var updateReview = await _reviewRepo.UpdateReviewAsync(reviewMap);
-            if (!updateReview)
-            {
+
+            if(!updateReview)
                 ModelState.AddModelError("", "Review could not be upddated");
                 return StatusCode(500, ModelState);
-            }
 
             return NoContent();
         }
@@ -164,17 +143,17 @@ namespace PokemonReviewAPI.Controllers
         public async Task<IActionResult> DeleteReview(int reviewId)
         {
             var reviewExists = await _reviewRepo.ReviewExistsAsync(reviewId);
-            if (!reviewExists)
+            if(!reviewExists)
                 return NotFound();
 
             var reviewToDelete = _reviewRepo.GetReview(reviewId);
 
-            if (!ModelState.IsValid)
+            if(!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var deleteReview = await _reviewRepo.DeleteReviewAsync(reviewToDelete);
 
-            if (!deleteReview)
+            if(!deleteReview)
                 ModelState.AddModelError("", "Something went wrong deleting review");
 
             return NoContent();

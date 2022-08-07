@@ -26,10 +26,9 @@ namespace PokemonReviewAPI.Controllers
             var categories =  _categoryRepo.GetAllCategories();
             var categoryDto = _mapper.Map<List<CategoryDTO>>(categories);
 
-            if (!ModelState.IsValid)
-            {
+            if(!ModelState.IsValid)
                 return BadRequest(ModelState);
-            }
+
             return Ok(categoryDto);
         }
 
@@ -39,17 +38,13 @@ namespace PokemonReviewAPI.Controllers
         public async Task<IActionResult> GetCategory(int categoryId)
         {
             var categoryExist = await _categoryRepo.CategoryExistsAsync(categoryId);
-            if (!categoryExist)
-            {
+            if(!categoryExist)
                 return NotFound();
-            }
 
             var category = await _categoryRepo.GetCategoryAsync(categoryId);
             var categoryDto = _mapper.Map<CategoryDTO>(category);
-            if (!ModelState.IsValid)
-            {
+            if(!ModelState.IsValid)
                 return BadRequest(ModelState);
-            }
 
             return Ok(categoryDto);
         }
@@ -62,10 +57,8 @@ namespace PokemonReviewAPI.Controllers
             var pokemon = await _categoryRepo.GetPokemonByCategory(categoryId);
             var pokemonDto = _mapper.Map<ICollection<PokemonDTO>>(pokemon);
 
-            if (!ModelState.IsValid)
-            {
+            if(!ModelState.IsValid)
                 return BadRequest();
-            }
 
             return Ok(pokemonDto);
         }
@@ -77,31 +70,23 @@ namespace PokemonReviewAPI.Controllers
         public async Task<IActionResult> CreateCategory([FromBody] CategoryDTO categoryDto)
         {
             if(categoryDto == null)
-            {
                 return BadRequest(ModelState);
-            }
             var category = _categoryRepo.GetAllCategories()
                                               .Where(c => c.Name.Trim().ToUpper() == categoryDto.Name.TrimEnd().ToUpper())
                                               .FirstOrDefault();
 
             if(category != null)
-            {
                 ModelState.AddModelError("", "Category already exists");
                 return StatusCode(422, ModelState);
-            }
 
-            if (!ModelState.IsValid)
-            {
+            if(!ModelState.IsValid)
                 return BadRequest(ModelState);
-            }
 
             var categoryMap = _mapper.Map<Category>(categoryDto);
             var createCategory = await _categoryRepo.CreateCategoryAsync(categoryMap);
-            if (!createCategory)
-            {
+            if(!createCategory)
                 ModelState.AddModelError("", "Something went wrong while creating the Category");
                 return StatusCode(500, ModelState);
-            }
 
             return Ok("Successfully Created");
         }
@@ -114,33 +99,23 @@ namespace PokemonReviewAPI.Controllers
         public async Task<IActionResult> UpdateCategory(int categoryId, [FromBody] CategoryDTO categoryDto)
         {
             if(categoryDto == null)
-            {
                 return BadRequest(ModelState);
-            }
 
-            if (categoryId != categoryDto.Id)
-            {
+            if(categoryId != categoryDto.Id)
                 return BadRequest(ModelState);
-            }
 
             var category = await _categoryRepo.CategoryExistsAsync(categoryId);
-            if (!category)
-            {
+            if(!category)
                 return NotFound();
-            }
 
-            if (!ModelState.IsValid)
-            {
+            if(!ModelState.IsValid)
                 return BadRequest();
-            }
 
             var categoryMap = _mapper.Map<Category>(categoryDto);
             var updateCategory = await _categoryRepo.UpdateCategoryAsync(categoryMap);
-            if (!updateCategory)
-            {
+            if(!updateCategory)
                 ModelState.AddModelError("", "Category could not be upddated");
                 return StatusCode(500, ModelState);
-            }
 
             return NoContent();
         }
@@ -152,23 +127,17 @@ namespace PokemonReviewAPI.Controllers
         public async Task<IActionResult> DeleteCategory(int categoryId)
         {
             var category = await _categoryRepo.CategoryExistsAsync(categoryId);
-            if (!category)
-            {
+            if(!category)
                 return NotFound();
-            }
 
             var categoryToDelete = await _categoryRepo.GetCategoryAsync(categoryId);
 
-            if (!ModelState.IsValid)
-            {
+            if(!ModelState.IsValid)
                 return BadRequest(ModelState);
-            }
 
             var deleteCategory = await _categoryRepo.DeleteCategoryAsync(categoryToDelete);
-            if (!deleteCategory)
-            {
+            if(!deleteCategory)
                 ModelState.AddModelError("", "Something went wrong while deleting category");
-            }
 
             return NoContent();
         }

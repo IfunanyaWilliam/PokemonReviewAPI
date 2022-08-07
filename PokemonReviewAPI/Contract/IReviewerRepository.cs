@@ -10,5 +10,6 @@ namespace PokemonReviewAPI.Contract
         Task<bool> ReviewerExistsAsync(int reviewerId);
         Task<bool> CreateReviewerAsync(Reviewer reviewer);
         Task<bool> UpdateReviewerAsync(Reviewer reviewer);
+        Task<bool> DeleteReviewerAsync(Reviewer reviewer);
     }
 }
