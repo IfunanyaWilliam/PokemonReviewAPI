@@ -76,17 +76,22 @@ namespace PokemonReviewAPI.Controllers
                                               .FirstOrDefault();
 
             if(category != null)
+            {
                 ModelState.AddModelError("", "Category already exists");
                 return StatusCode(422, ModelState);
+            }
 
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var categoryMap = _mapper.Map<Category>(categoryDto);
             var createCategory = await _categoryRepo.CreateCategoryAsync(categoryMap);
+
             if(!createCategory)
+            {
                 ModelState.AddModelError("", "Something went wrong while creating the Category");
                 return StatusCode(500, ModelState);
+            }
 
             return Ok("Successfully Created");
         }

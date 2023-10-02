@@ -1,5 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using PokemonReviewAPI.Migrations;
 using PokemonReviewAPI.Models;
+using System;
 
 namespace PokemonReviewAPI.Data
 {
@@ -7,7 +10,6 @@ namespace PokemonReviewAPI.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
-
         }
 
         public DbSet<Category> Categories { get; set; }
@@ -42,6 +44,14 @@ namespace PokemonReviewAPI.Data
                         .HasOne(c => c.Owner)
                         .WithMany(po => po.PokemonOwners)
                         .HasForeignKey(o => o.OwnerId);
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder
+            .UseSqlServer(
+                    "Server=IFUNANYA-ONAH; Database=PokemonReviewAPI; Trusted_Connection=True;MultipleActiveResultSets=True",
+                    options => options.EnableRetryOnFailure());
         }
     }
 }

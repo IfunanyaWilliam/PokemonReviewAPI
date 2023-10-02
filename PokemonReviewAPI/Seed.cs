@@ -12,6 +12,8 @@ namespace PokemonReviewAPI
         }
         public void SeedDataContext()
         {
+            _context.Database.EnsureCreated();
+
             if (!_context.PokemonOwners.Any())
             {
                 var pokemonOwners = new List<PokemonOwner>()
@@ -78,7 +80,8 @@ namespace PokemonReviewAPI
                             }
                         }
                     },
-                                    new PokemonOwner()
+                   
+                    new PokemonOwner()
                     {
                         Pokemon = new Pokemon()
                         {
