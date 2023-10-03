@@ -1,8 +1,12 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using PokemonReviewAPI;
+using PokemonReviewAPI.Configurations;
 using PokemonReviewAPI.Contract;
 using PokemonReviewAPI.Data;
 using PokemonReviewAPI.Repository;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +32,31 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 
+//Map JwtConfig section in appsettings to JwtConfig class in Configuration folder
+builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("JwtConfig"));
+
+//Jwt Authentication middleware
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+  .AddJwtBearer(jwt =>
+  {
+      var key = Encoding.ASCII.GetBytes(builder.Configuration.GetSection("JwtConfig:Secret").Value);
+      jwt.SaveToken = true;
+      jwt.TokenValidationParameters = new TokenValidationParameters()
+      {
+          ValidateIssuerSigningKey = true,
+          IssuerSigningKey = new SymmetricSecurityKey(key),
+          ValidateIssuer = false,      //For Local environment but should be true in production
+          ValidateAudience = false,      //For Local environment but should be true in production
+          RequireExpirationTime = false,   //For dev environment but should be updated with refresh token
+          ValidateLifetime = true
+      };
+  });
+
 var app = builder.Build();
 
 //if (args.Length == 1 && args[0].ToLower() == "seeddata")
@@ -52,6 +81,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
