@@ -6,7 +6,7 @@ using System;
 
 namespace PokemonReviewAPI.Data
 {
-    public class AppDbContext : IdentityDbContext<IdentityUser>
+    public class AppDbContext : IdentityDbContext<AppUser>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -20,6 +20,8 @@ namespace PokemonReviewAPI.Data
         public DbSet<PokemonOwner> PokemonOwners { get; set; }
         public DbSet<Review> Reviews { get; set; }  
         public DbSet<Reviewer> Reviewers { get; set; }
+
+        public DbSet<AppUser> AppUsers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

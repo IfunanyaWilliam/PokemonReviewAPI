@@ -9,12 +9,12 @@ namespace PokemonReviewAPI
     {
         private readonly AppDbContext _context;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<AppUser> _userManager;
 
         public Seed(
             AppDbContext context,
             RoleManager<IdentityRole> roleManager,
-            UserManager<User> userManager)
+            UserManager<AppUser> userManager)
         {
             _context = context;
             _roleManager = roleManager;
@@ -125,23 +125,30 @@ namespace PokemonReviewAPI
                     }
                 };
                 _context.PokemonOwners.AddRange(pokemonOwners);
-                await _context.SaveChangesAsync();
+                //await _context.SaveChangesAsync();
             }
 
             var user = await _userManager.FindByEmailAsync("will@abc.com");
 
-            if (user != null)
+            if (user == null)
             {
-                var defaultUser = new User
+                var defaultUser = new AppUser
                 {
                     UserName = "WillyJolly",
                     Email = "will@abc.com",
-                    Password = "string@A123"
+                    //Password = "string@A123"
                 };
 
-                await _userManager.CreateAsync(defaultUser, defaultUser.Password);
+                if (!_roleManager.Roles.Any())
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(AppRoles.ADMIN));
+                }
+
+                await _userManager.CreateAsync(defaultUser, Environment.GetEnvironmentVariable("PokemonDefaultAdmin"));
                 await _userManager.AddToRoleAsync(defaultUser, AppRoles.ADMIN);
             }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

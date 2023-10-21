@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
+using PokemonReviewAPI.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,7 +73,7 @@ builder.Services.AddAuthentication(options =>
       };
   });
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
     options.SignIn.RequireConfirmedEmail = false )
     .AddEntityFrameworkStores<AppDbContext>();
 
@@ -83,12 +84,12 @@ SeedData(app);
 
 void SeedData(IHost app)
 {
-    var scopedFactory = app.Services.GetService<IServiceScopeFactory>();
+    //var scopedFactory = app.Services.GetService<IServiceScopeFactory>();
 
-    using (var scope = scopedFactory.CreateScope())
+    using (var scope = app.Services.CreateAsyncScope())
     {
-        var service = scope.ServiceProvider.GetService<Seed>();
-        service.SeedDataContext();
+        var service = scope.ServiceProvider.GetRequiredService<Seed>();
+        service.SeedDataContext().Wait();
     }
 }
 

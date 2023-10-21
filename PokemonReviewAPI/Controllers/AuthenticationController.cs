@@ -10,16 +10,17 @@
     using System.Text;
     using Auth;
     using DTO;
+    using PokemonReviewAPI.Models;
 
     [Route("api/[controller]")]
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<AppUser> _userManager;
         private readonly IConfiguration _configuration;
 
         public AuthenticationController(
-            UserManager<IdentityUser> userManager,
+            UserManager<AppUser> userManager,
             IConfiguration configuration)
         {
             _userManager = userManager;
@@ -43,7 +44,7 @@
                     });
                 }
 
-                var newUser = new IdentityUser
+                var newUser = new AppUser
                 {
                     Email = requestDto.Email,
                     UserName = requestDto.Email
