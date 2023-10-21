@@ -1,11 +1,15 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using PokemonReviewAPI.Contract;
-using PokemonReviewAPI.DTO;
-using PokemonReviewAPI.Models;
-
-namespace PokemonReviewAPI.Controllers
+﻿namespace PokemonReviewAPI.Controllers
 {
+    using AutoMapper;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using Contract;
+    using DTO;
+    using Models;
+
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
     public class ReviewerController : Controller

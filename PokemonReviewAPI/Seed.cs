@@ -1,4 +1,5 @@
-﻿using PokemonReviewAPI.Data;
+﻿using Microsoft.AspNetCore.Identity;
+using PokemonReviewAPI.Data;
 using PokemonReviewAPI.Models;
 
 namespace PokemonReviewAPI
@@ -6,10 +7,19 @@ namespace PokemonReviewAPI
     public class Seed
     {
         private readonly AppDbContext _context;
-        public Seed(AppDbContext context)
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<User> _userManager;
+
+        public Seed(
+            AppDbContext context,
+            RoleManager<IdentityRole> roleManager,
+            UserManager<User> userManager)
         {
             _context = context;
+            _roleManager = roleManager;
+            _userManager = userManager;
         }
+
         public void SeedDataContext()
         {
             _context.Database.EnsureCreated();
@@ -116,6 +126,8 @@ namespace PokemonReviewAPI
                 _context.PokemonOwners.AddRange(pokemonOwners);
                 _context.SaveChanges();
             }
+
+
         }
     }
 }
