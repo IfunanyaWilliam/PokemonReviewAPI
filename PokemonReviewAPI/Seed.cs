@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using PokemonReviewAPI.Auth;
 using PokemonReviewAPI.Data;
 using PokemonReviewAPI.Models;
 
@@ -20,7 +21,7 @@ namespace PokemonReviewAPI
             _userManager = userManager;
         }
 
-        public void SeedDataContext()
+        public async Task SeedDataContext()
         {
             _context.Database.EnsureCreated();
 
@@ -124,10 +125,23 @@ namespace PokemonReviewAPI
                     }
                 };
                 _context.PokemonOwners.AddRange(pokemonOwners);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
 
+            var user = await _userManager.FindByEmailAsync("will@abc.com");
 
+            if (user != null)
+            {
+                var defaultUser = new User
+                {
+                    UserName = "WillyJolly",
+                    Email = "will@abc.com",
+                    Password = "string@A123"
+                };
+
+                await _userManager.CreateAsync(defaultUser, defaultUser.Password);
+                await _userManager.AddToRoleAsync(defaultUser, AppRoles.ADMIN);
+            }
         }
     }
 }
