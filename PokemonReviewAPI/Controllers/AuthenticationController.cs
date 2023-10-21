@@ -62,9 +62,7 @@
                         Errors = Errorlist
                     });
                 }
-                //"email": "will@abc.com",
-                //"password": "string@A123"
-
+               
                 var token = GenerateJwtToken(newUser);
 
                 return Ok(new AuthResult
