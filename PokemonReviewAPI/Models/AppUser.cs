@@ -4,8 +4,8 @@ namespace PokemonReviewAPI.Models
 {
     public class AppUser : IdentityUser
     {
-        public string UserName { get; set; }
+        public override string UserName { get; set; }
 
-        public string Email { get; set; }
+        public override string Email { get; set; }
     }
 }

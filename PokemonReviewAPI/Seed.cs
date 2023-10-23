@@ -12,14 +12,12 @@ namespace PokemonReviewAPI
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<AppUser> _userManager;
 
-        public Seed(
-            AppDbContext context,
-            RoleManager<IdentityRole> roleManager,
-            UserManager<AppUser> userManager)
+        public Seed(IServiceProvider provider)
         {
-            _context = context;
-            _roleManager = roleManager;
-            _userManager = userManager;
+            _context = provider.GetRequiredService<AppDbContext>();
+            _userManager = provider.GetRequiredService<UserManager<AppUser>>();
+            _roleManager = provider.GetRequiredService<RoleManager<IdentityRole>>();
+
         }
 
         public async Task SeedDataContext()
@@ -127,7 +125,6 @@ namespace PokemonReviewAPI
                 };
 
                 _context.PokemonOwners.AddRange(pokemonOwners);
-                //await _context.SaveChangesAsync();
             }
 
             var user = await _userManager.FindByEmailAsync("will@abc.com");
@@ -137,8 +134,7 @@ namespace PokemonReviewAPI
                 var defaultUser = new AppUser
                 {
                     UserName = "WillyJolly",
-                    Email = "will@abc.com",
-                    //Password = "string@A123"
+                    Email = "will@abc.com"
                 };
 
                 if (!_roleManager.Roles.Any(r => r.NormalizedName == "ADMIN"))
@@ -147,13 +143,11 @@ namespace PokemonReviewAPI
                 }
 
                 var password = Environment.GetEnvironmentVariable("PokemonDefaultAdmin", EnvironmentVariableTarget.Machine);
+                var result = await _userManager.CreateAsync(defaultUser, password);
 
-                //await _context.AppUsers.AddAsync(defaultUser);
-                await _userManager.CreateAsync(defaultUser, password);
-                await _userManager.AddToRoleAsync(defaultUser, AppRoles.ADMIN);
+                if (result.Succeeded) 
+                    await _userManager.AddToRoleAsync(defaultUser, AppRoles.ADMIN);
             }
-
-           await _context.SaveChangesAsync();
         }
     }
 }
