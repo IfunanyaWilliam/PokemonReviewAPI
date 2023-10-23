@@ -32,48 +32,43 @@
         public async Task<ActionResult> RegisterAsync(
                 [FromBody] UserRegistrationDto requestDto)
         {
-            //if(ModelState.IsValid)
-            //{
-                var userExist = await _userManager.FindByEmailAsync(requestDto.Email);
-                if (userExist != null)
+            var userExist = await _userManager.FindByEmailAsync(requestDto.Email);
+            if (userExist != null)
+            {
+                return BadRequest(new AuthResult
                 {
-                    return BadRequest(new AuthResult
-                    {
-                        Result = false,
-                        Errors = new List<string> { "Email already exist" }
-                    });
-                }
-
-                var newUser = new AppUser
-                {
-                    Email = requestDto.Email,
-                    UserName = requestDto.Email
-                };
-
-                var result = await _userManager.CreateAsync(newUser, requestDto.Password);
-                var Errorlist = new List<string>();
-
-                if (!result.Succeeded)
-                {
-                    result.Errors.ToList().ForEach(error => Errorlist.Add(error.Description));
-
-                    return BadRequest(new AuthResult
-                    {
-                        Result = false,
-                        Errors = Errorlist
-                    });
-                }
-               
-                var token = GenerateJwtToken(newUser);
-
-                return Ok(new AuthResult
-                {
-                    Token = token,
-                    Result = true
+                    Result = false,
+                    Errors = new List<string> { "Email already exist" }
                 });
-           // }
+            }
 
-           // return BadRequest(ModelState);
+            var newUser = new AppUser
+            {
+                Email = requestDto.Email,
+                UserName = requestDto.Email
+            };
+
+            var result = await _userManager.CreateAsync(newUser, requestDto.Password);
+            var Errorlist = new List<string>();
+
+            if (!result.Succeeded)
+            {
+                result.Errors.ToList().ForEach(error => Errorlist.Add(error.Description));
+
+                return BadRequest(new AuthResult
+                {
+                    Result = false,
+                    Errors = Errorlist
+                });
+            }
+               
+            var token = GenerateJwtToken(newUser);
+
+            return Ok(new AuthResult
+            {
+                Token = token,
+                Result = true
+            });
         }
 
         [Route("login")]
