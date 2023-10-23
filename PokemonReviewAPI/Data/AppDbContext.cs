@@ -49,13 +49,5 @@ namespace PokemonReviewAPI.Data
                         .WithMany(po => po.PokemonOwners)
                         .HasForeignKey(o => o.OwnerId);
         }
-
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    optionsBuilder
-        //    .UseSqlServer(
-        //            "Server=IFUNANYA-ONAH; Database=PokemonReviewAPI; Trusted_Connection=True;MultipleActiveResultSets=True",
-        //            options => options.EnableRetryOnFailure());
-        //}
     }
 }
