@@ -17,8 +17,12 @@ Teck stack
 It is implemented with C#, ASP.NET, SQL Server.
 
 
-To do:
-There is no authentication implemented so far. 
+Security:
+Implemented authentication with Jwt. 
+
+  To do: 
+  => Implement Jwt refresh token
+
 
 
 Credits
