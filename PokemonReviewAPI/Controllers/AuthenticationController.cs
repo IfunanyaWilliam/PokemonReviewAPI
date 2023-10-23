@@ -32,8 +32,8 @@
         public async Task<ActionResult> RegisterAsync(
                 [FromBody] UserRegistrationDto requestDto)
         {
-            if(ModelState.IsValid)
-            {
+            //if(ModelState.IsValid)
+            //{
                 var userExist = await _userManager.FindByEmailAsync(requestDto.Email);
                 if (userExist != null)
                 {
@@ -71,9 +71,9 @@
                     Token = token,
                     Result = true
                 });
-            }
+           // }
 
-            return BadRequest(ModelState);
+           // return BadRequest(ModelState);
         }
 
         [Route("login")]
@@ -89,9 +89,9 @@
                 });
             }
 
-            var userExist = await _userManager.FindByEmailAsync(loginRequestDto.Email);
-
-            if (userExist == null)
+            var user = await _userManager.FindByEmailAsync(loginRequestDto.Email);
+           
+            if (user == null)
             {
                 return BadRequest(new AuthResult
                 {
@@ -100,9 +100,9 @@
                 });
             }
 
-            var IsCorrectCredentials = await _userManager.CheckPasswordAsync(userExist, loginRequestDto.Password);
+            var IsValidCredentials = await _userManager.CheckPasswordAsync(user, loginRequestDto.Password);
 
-            if (!IsCorrectCredentials)
+            if (!IsValidCredentials)
             {
                 return BadRequest(new AuthResult
                 {
@@ -111,7 +111,7 @@
                 });
             }
 
-            var jwtToken = GenerateJwtToken(userExist);
+            var jwtToken = GenerateJwtToken(user);
 
             return Ok(new AuthResult
                       {

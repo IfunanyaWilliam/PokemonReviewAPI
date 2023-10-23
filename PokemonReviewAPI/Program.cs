@@ -74,22 +74,25 @@ builder.Services.AddAuthentication(options =>
   });
 
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
-    options.SignIn.RequireConfirmedEmail = false )
+    { 
+        options.SignIn.RequireConfirmedEmail = false;
+        options.User.RequireUniqueEmail = true;
+    })
     .AddEntityFrameworkStores<AppDbContext>();
 
 var app = builder.Build();
 
 //if (args.Length == 1 && args[0].ToLower() == "seeddata")
-SeedData(app);
+await SeedData();
 
-void SeedData(IHost app)
+async Task SeedData()
 {
-    //var scopedFactory = app.Services.GetService<IServiceScopeFactory>();
+    var scopedFactory = app.Services.GetService<IServiceScopeFactory>();
 
-    using (var scope = app.Services.CreateAsyncScope())
+    using (var scope = scopedFactory.CreateAsyncScope())
     {
         var service = scope.ServiceProvider.GetRequiredService<Seed>();
-        service.SeedDataContext().Wait();
+        await service.SeedDataContext();
     }
 }
 
@@ -101,6 +104,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
 
 app.UseAuthentication();
 

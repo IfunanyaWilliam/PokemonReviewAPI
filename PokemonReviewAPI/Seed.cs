@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using PokemonReviewAPI.Auth;
 using PokemonReviewAPI.Data;
 using PokemonReviewAPI.Models;
@@ -124,6 +125,7 @@ namespace PokemonReviewAPI
                         }
                     }
                 };
+
                 _context.PokemonOwners.AddRange(pokemonOwners);
                 //await _context.SaveChangesAsync();
             }
@@ -139,16 +141,19 @@ namespace PokemonReviewAPI
                     //Password = "string@A123"
                 };
 
-                if (!_roleManager.Roles.Any())
+                if (!_roleManager.Roles.Any(r => r.NormalizedName == "ADMIN"))
                 {
                     await _roleManager.CreateAsync(new IdentityRole(AppRoles.ADMIN));
                 }
 
-                await _userManager.CreateAsync(defaultUser, Environment.GetEnvironmentVariable("PokemonDefaultAdmin"));
+                var password = Environment.GetEnvironmentVariable("PokemonDefaultAdmin", EnvironmentVariableTarget.Machine);
+
+                //await _context.AppUsers.AddAsync(defaultUser);
+                await _userManager.CreateAsync(defaultUser, password);
                 await _userManager.AddToRoleAsync(defaultUser, AppRoles.ADMIN);
             }
 
-            await _context.SaveChangesAsync();
+           await _context.SaveChangesAsync();
         }
     }
 }
