@@ -11,10 +11,10 @@
     public class AccountController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly IAccountServices _accountServices;
+        private readonly IAccountService _accountServices;
 
         public AccountController(UserManager<AppUser> userManager,
-                                 IAccountServices accountServices)
+                                 IAccountService accountServices)
         {
              _userManager = userManager;
             _accountServices = accountServices;

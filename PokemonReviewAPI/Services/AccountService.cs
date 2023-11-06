@@ -6,11 +6,11 @@
     using PokemonReviewAPI.DTO;
     using PokemonReviewAPI.Models;
 
-    public class AccountServices : IAccountServices
+    public class AccountService : IAccountService
     {
         private readonly UserManager<AppUser> _userManager;
 
-        public AccountServices(UserManager<AppUser> userManager)
+        public AccountService(UserManager<AppUser> userManager)
         {
               _userManager = userManager;
         }

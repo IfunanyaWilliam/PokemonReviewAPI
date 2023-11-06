@@ -11,20 +11,22 @@
     using Auth;
     using DTO;
     using PokemonReviewAPI.Models;
+    using PokemonReviewAPI.Contract;
 
     [Route("api/[controller]")]
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly IConfiguration _configuration;
+        private readonly IAuthenticationService _authenticationServices;
 
         public AuthenticationController(
             UserManager<AppUser> userManager,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IAuthenticationService authenticationServices)
         {
             _userManager = userManager;
-            _configuration = configuration;
+            _authenticationServices = authenticationServices;
         }
 
 
@@ -47,6 +49,7 @@
             {
                 return BadRequest(new AuthResult
                 {
+                    Message = "Login attempt was not successful",
                     Result = false,
                     Errors = new List<string> { "Invalid Payload" }
                 });
@@ -58,43 +61,20 @@
             {
                 return BadRequest(new AuthResult
                 {
+                    Message = "Login attempt was not successful",
                     Result = false,
                     Errors = new List<string> { "Invalid Credentials" }
                 });
             }
 
-            var jwtToken = GenerateJwtToken(user);
+            var jwtToken = _authenticationServices.GenerateJwtToken(user);
 
             return Ok(new AuthResult
-                      {
-                        Result = true,
-                        Token = jwtToken,
-                      });
-        }
-
-        private string GenerateJwtToken(IdentityUser user)
-        {
-            var key = Encoding.UTF8.GetBytes(_configuration.GetSection("JwtConfig:Secret").Value);
-            var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                    {
-                        new Claim("Id", user.Id),
-                        new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                        new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                        new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString())
-                    }),
-
-                Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
-            };
-
-            var jwtTokenHandler = new JwtSecurityTokenHandler();
-            var token = jwtTokenHandler.CreateToken(tokenDescriptor);
-            var jwtToken = jwtTokenHandler.WriteToken(token);
-
-            return jwtToken;
+                Message = "Login successful",
+                Result = true,
+               Token = jwtToken,
+            });
         }
     }
 }

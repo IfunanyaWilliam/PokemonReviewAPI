@@ -3,7 +3,7 @@ using PokemonReviewAPI.DTO;
 
 namespace PokemonReviewAPI.Contract
 {
-    public interface IAccountServices
+    public interface IAccountService
     {
         Task<AuthResult> RegisterUserAsync(UserRegistrationDto requestDto);
     }
