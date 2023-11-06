@@ -10,14 +10,11 @@
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly UserManager<AppUser> _userManager;
-        private readonly IAccountService _accountServices;
+        private readonly IAccountService _accountService;
 
-        public AccountController(UserManager<AppUser> userManager,
-                                 IAccountService accountServices)
+        public AccountController(IAccountService accountService)
         {
-             _userManager = userManager;
-            _accountServices = accountServices;
+            _accountService = accountService;
         }
 
 
@@ -31,7 +28,7 @@
                 return BadRequest("Invalid request payload");
             }
 
-            var authResult = await _accountServices.RegisterUserAsync(requestDto);
+            var authResult = await _accountService.RegisterUserAsync(requestDto);
             return new JsonResult(authResult);
         }
 

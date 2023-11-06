@@ -18,15 +18,15 @@
     public class AuthenticationController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly IAuthenticationService _authenticationServices;
+        private readonly IAuthenticationService _authenticationService;
 
         public AuthenticationController(
             UserManager<AppUser> userManager,
             IConfiguration configuration,
-            IAuthenticationService authenticationServices)
+            IAuthenticationService authenticationService)
         {
             _userManager = userManager;
-            _authenticationServices = authenticationServices;
+            _authenticationService = authenticationService;
         }
 
 
@@ -49,7 +49,7 @@
             {
                 return BadRequest(new AuthResult
                 {
-                    Message = "Login attempt was not successful",
+                    Message = $"No user with email: {loginRequestDto.Email}",
                     Result = false,
                     Errors = new List<string> { "Invalid Payload" }
                 });
@@ -67,13 +67,25 @@
                 });
             }
 
-            var jwtToken = _authenticationServices.GenerateJwtToken(user);
+            var jwtToken = _authenticationService.GenerateJwtToken(user);
+
+            if (user.RefreshTokens.Any(a => a.IsActive))
+                return Ok(new AuthResult
+                {
+                    Message = "Login successful",
+                    Result = true,
+                    Token = jwtToken,
+                    RefreshToken = user.RefreshTokens.FirstOrDefault(a => a.IsActive).Token
+                });
+
+            var refreshToken = _authenticationService.GenerateRefreshToken();
 
             return Ok(new AuthResult
             {
                 Message = "Login successful",
                 Result = true,
-               Token = jwtToken,
+                Token = jwtToken,
+                RefreshToken = refreshToken
             });
         }
     }
