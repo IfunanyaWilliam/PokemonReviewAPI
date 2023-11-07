@@ -1,5 +1,6 @@
 ﻿namespace PokemonReviewAPI.Services
 {
+    using Microsoft.EntityFrameworkCore.Metadata.Internal;
     using Microsoft.IdentityModel.Tokens;
     using PokemonReviewAPI.Contract;
     using PokemonReviewAPI.Models;
@@ -33,6 +34,25 @@
             return Convert.ToBase64String(randomNumber);
         }
 
+        public RefreshToken GetRefreshToken(string AppUserId,  string RefreshToken)
+        {
+
+        }
+
+        public async Task<bool> UpdateUserRefreshToken(AppUser user, string token)
+        {
+            var refreshToken = new RefreshToken
+            {
+                Token = token,
+                Created = DateTime.UtcNow,
+                Expires = DateTime.UtcNow.AddDays(5),
+                IsActive = true
+            };
+
+            user.RefreshTokens.Add(refreshToken);
+            return await _userRepository.UpdateUserAsync(user);
+        }
+
         public string GenerateJwtToken(AppUser user)
         {
             var key = Encoding.UTF8.GetBytes(_configuration.GetSection("JwtConfig:Secret").Value);
@@ -58,18 +78,25 @@
             return jwtToken;
         }
 
-        public async Task<bool> UpdateUserRefreshToken(AppUser user, string token)
+        public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
         {
-            var refreshToken = new RefreshToken
-            {
-                Token = token,
-                Created = DateTime.UtcNow,
-                Expires = DateTime.UtcNow.AddDays(5),
-                IsActive = true
-            };
-
-            user.RefreshTokens.Add(refreshToken);
-            return await _userRepository.UpdateUserAsync(user);
+            var key = Encoding.UTF8.GetBytes(_configuration.GetSection("JwtConfig:Secret").Value);
+            var tokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,      
+                    ValidateAudience = false,      
+                    RequireExpirationTime = false,   
+                    ValidateLifetime = true
+                };
+            var tokenHandler = new JwtSecurityTokenHandler();
+            SecurityToken securityToken;
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+            var jwtSecurityToken = securityToken as JwtSecurityToken;
+            if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                throw new SecurityTokenException("Invalid token");
+            return principal;
         }
     }
 }

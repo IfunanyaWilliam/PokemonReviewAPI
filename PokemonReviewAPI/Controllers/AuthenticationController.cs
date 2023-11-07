@@ -6,6 +6,8 @@
     using DTO;
     using PokemonReviewAPI.Models;
     using PokemonReviewAPI.Contract;
+    using Microsoft.AspNetCore.Authorization;
+    using Newtonsoft.Json.Linq;
 
     [Route("api/[controller]")]
     [ApiController]
@@ -96,6 +98,14 @@
                 Message = "Login attempt failed",
                 Errors = new List<string> { "Internal server error" }
             });
+        }
+
+
+        [HttpPost]
+        [Route("refresh")]
+        public IActionResult RefreshAccessToken(string token)
+        {
+
         }
     }
 }

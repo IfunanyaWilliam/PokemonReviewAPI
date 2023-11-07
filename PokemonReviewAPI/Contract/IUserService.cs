@@ -1,4 +1,5 @@
 ﻿using PokemonReviewAPI.Models;
+using System.Security.Claims;
 
 namespace PokemonReviewAPI.Contract
 {
@@ -7,8 +8,10 @@ namespace PokemonReviewAPI.Contract
         Task<AppUser> GetAppUserByIdAsync(string id);
         string GenerateRefreshToken();
 
+        Task<bool> UpdateUserRefreshToken(AppUser user, string token);
+
         string GenerateJwtToken(AppUser user);
 
-        Task<bool> UpdateUserRefreshToken(AppUser user, string token);
+        ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
     }
 }
