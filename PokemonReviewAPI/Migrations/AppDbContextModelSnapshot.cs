@@ -345,6 +345,9 @@ namespace PokemonReviewAPI.Migrations
                     b.Property<DateTime>("Expires")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("Revoked")
                         .HasColumnType("datetime2");
 

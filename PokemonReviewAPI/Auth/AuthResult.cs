@@ -9,10 +9,10 @@
         [JsonIgnore]
         public string? RefreshToken { get; set; }
 
-        public string? Message { get; set; }
-
-        public bool Result { get; set; }
+        public string Message { get; set; }
 
         public List<string>? Errors { get; set; }
+
+        public bool IsAuthorized { get; set; }
     }
 }

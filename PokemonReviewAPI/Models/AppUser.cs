@@ -8,6 +8,6 @@ namespace PokemonReviewAPI.Models
 
         public override string Email { get; set; }
 
-        public List<RefreshToken> RefreshTokens { get; set; }
+        public List<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     }
 }

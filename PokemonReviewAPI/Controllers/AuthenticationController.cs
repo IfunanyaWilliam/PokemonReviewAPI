@@ -1,13 +1,7 @@
 ﻿namespace PokemonReviewAPI.Controllers
 {
-    using Microsoft.AspNetCore.Authentication.JwtBearer;
-    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.IdentityModel.Tokens;
-    using System.IdentityModel.Tokens.Jwt;
-    using System.Security.Claims;
-    using System.Text;
     using Auth;
     using DTO;
     using PokemonReviewAPI.Models;
@@ -18,15 +12,14 @@
     public class AuthenticationController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly IAuthenticationService _authenticationService;
+        private readonly IUserService _userService;
 
         public AuthenticationController(
             UserManager<AppUser> userManager,
-            IConfiguration configuration,
-            IAuthenticationService authenticationService)
+            IUserService authenticationService)
         {
             _userManager = userManager;
-            _authenticationService = authenticationService;
+            _userService = authenticationService;
         }
 
 
@@ -38,7 +31,8 @@
             {
                 return BadRequest(new AuthResult
                 {
-                    Result = false,
+                    IsAuthorized = false,
+                    Message = "Login attempt failed",
                     Errors = new List<string> { "Invalid Payload: Email and Password are required" }
                 });
             }
@@ -49,8 +43,8 @@
             {
                 return BadRequest(new AuthResult
                 {
-                    Message = $"No user with email: {loginRequestDto.Email}",
-                    Result = false,
+                    IsAuthorized = false,
+                    Message = "Login attempt failed",
                     Errors = new List<string> { "Invalid Payload" }
                 });
             }
@@ -60,32 +54,47 @@
             if (!IsValidCredentials)
             {
                 return BadRequest(new AuthResult
-                {
-                    Message = "Login attempt was not successful",
-                    Result = false,
+                { 
+                    IsAuthorized = false,
+                    Message = "Login attempt failed",
                     Errors = new List<string> { "Invalid Credentials" }
                 });
             }
+            
+            var jwtToken = _userService.GenerateJwtToken(user);
 
-            var jwtToken = _authenticationService.GenerateJwtToken(user);
+            var currentUser = await _userService.GetAppUserByIdAsync(user.Id);
 
-            if (user.RefreshTokens.Any(a => a.IsActive))
+            if (currentUser.RefreshTokens.Any(x => x.IsActive))
+            {
                 return Ok(new AuthResult
                 {
-                    Message = "Login successful",
-                    Result = true,
+                    IsAuthorized = true,
+                    Message = "Login Successful 1",
                     Token = jwtToken,
                     RefreshToken = user.RefreshTokens.FirstOrDefault(a => a.IsActive).Token
                 });
+            }
 
-            var refreshToken = _authenticationService.GenerateRefreshToken();
+            var refreshToken = _userService.GenerateRefreshToken();
+            var updateUserResult = await _userService.UpdateUserRefreshToken(user, refreshToken);
+            if(updateUserResult)
+            {
+                return Ok(new AuthResult
+                {
+                    IsAuthorized = true,
+                    Message = "Login Successful 2",
+                    Token = jwtToken,
+                    RefreshToken = refreshToken
+                });
+            }
+
 
             return Ok(new AuthResult
             {
-                Message = "Login successful",
-                Result = true,
-                Token = jwtToken,
-                RefreshToken = refreshToken
+                IsAuthorized = false,
+                Message = "Login attempt failed",
+                Errors = new List<string> { "Internal server error" }
             });
         }
     }

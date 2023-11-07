@@ -1,6 +1,5 @@
 ﻿namespace PokemonReviewAPI.Services
 {
-    using Microsoft.AspNetCore.Identity;
     using Microsoft.IdentityModel.Tokens;
     using PokemonReviewAPI.Contract;
     using PokemonReviewAPI.Models;
@@ -9,19 +8,22 @@
     using System.Security.Cryptography;
     using System.Text;
 
-    public class AuthenticationService : IAuthenticationService
+    public class UserService : IUserService
     {
-        private readonly UserManager<AppUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly IUserRepository _userRepository;
 
-        public AuthenticationService(
-            UserManager<AppUser> userManager,
-            IConfiguration configuration)
+        public UserService(IUserRepository userRepository,
+                           IConfiguration configuration)
         {
-            _userManager = userManager;
             _configuration = configuration;
+            _userRepository = userRepository;
         }
 
+        public async Task<AppUser> GetAppUserByIdAsync(string id)
+        {
+            return await _userRepository.GetAppUserByIdAsync(id);
+        }
 
         public string GenerateRefreshToken()
         {
@@ -54,6 +56,20 @@
             var jwtToken = jwtTokenHandler.WriteToken(token);
 
             return jwtToken;
+        }
+
+        public async Task<bool> UpdateUserRefreshToken(AppUser user, string token)
+        {
+            var refreshToken = new RefreshToken
+            {
+                Token = token,
+                Created = DateTime.UtcNow,
+                Expires = DateTime.UtcNow.AddDays(5),
+                IsActive = true
+            };
+
+            user.RefreshTokens.Add(refreshToken);
+            return await _userRepository.UpdateUserAsync(user);
         }
     }
 }

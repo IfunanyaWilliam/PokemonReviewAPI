@@ -22,8 +22,7 @@
             {
                 return new AuthResult
                 {
-                    Message = "User could not be registered",
-                    Result = false,
+                    Message = "User registration failed",
                     Errors = new List<string> { "Email already exist" }
                 };
             }
@@ -44,7 +43,6 @@
                 return new AuthResult
                 {
                     Message = "User registration failed",
-                    Result = false,
                     Errors = Errorlist
                 };
             }
@@ -53,7 +51,6 @@
             return new AuthResult
             {
                 Message = "User successly registered",
-                Result = true,
                 Errors = null
             };
         }

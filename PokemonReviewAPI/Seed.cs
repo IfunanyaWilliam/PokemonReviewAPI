@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PokemonReviewAPI.Auth;
+using PokemonReviewAPI.Contract;
 using PokemonReviewAPI.Data;
 using PokemonReviewAPI.Models;
 
@@ -11,12 +12,14 @@ namespace PokemonReviewAPI
         private readonly AppDbContext _context;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IUserService _userService;
 
         public Seed(IServiceProvider provider)
         {
             _context = provider.GetRequiredService<AppDbContext>();
             _userManager = provider.GetRequiredService<UserManager<AppUser>>();
             _roleManager = provider.GetRequiredService<RoleManager<IdentityRole>>();
+            _userService = provider.GetRequiredService<IUserService>();
 
         }
 
@@ -145,8 +148,12 @@ namespace PokemonReviewAPI
                 var password = Environment.GetEnvironmentVariable("PokemonDefaultAdmin", EnvironmentVariableTarget.Machine);
                 var result = await _userManager.CreateAsync(defaultUser, password);
 
-                if (result.Succeeded) 
+                if (result.Succeeded)
+                {
+                    var refreshToken = _userService.GenerateRefreshToken();
+                    await _userService.UpdateUserRefreshToken(defaultUser, refreshToken);
                     await _userManager.AddToRoleAsync(defaultUser, AppRoles.ADMIN);
+                }
             }
         }
     }

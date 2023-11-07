@@ -12,8 +12,8 @@ using PokemonReviewAPI.Data;
 namespace PokemonReviewAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20231106160006_Add_Refresh_Token")]
-    partial class Add_Refresh_Token
+    [Migration("20231107193805_AddRefreshToken")]
+    partial class AddRefreshToken
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -346,6 +346,9 @@ namespace PokemonReviewAPI.Migrations
 
                     b.Property<DateTime>("Expires")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("Revoked")
                         .HasColumnType("datetime2");
