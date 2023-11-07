@@ -18,15 +18,16 @@ It is implemented with C#, ASP.NET, SQL Server.
 
 
 Security:
-Implemented authentication with Jwt. 
+=> Implemented authentication with Jwt. 
+=> Implemented Jwt refresh token
 
   To do: 
-  => Implement Jwt refresh token
-
+ => Implement background cron job  
 
 
 Credits
 I followed Teddy Smith tutorial from youtube
+NB: Teddy limited the tutorial to CRUD and unit tests.
 https://www.youtube.com/playlist?list=PL82C6-O4XrHdiS10BLh23x71ve9mQCln0
 
 
