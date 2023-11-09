@@ -5,10 +5,11 @@ namespace PokemonReviewAPI.Contract
 {
     public interface IUserService
     {
-        Task<AppUser> GetAppUserByIdAsync(string id);
-        string GenerateRefreshToken();
+        Task<AppUser> GetAppUserAsync(string userEmail);
 
         Task<bool> UpdateUserRefreshToken(AppUser user, string token);
+
+        string GenerateRefreshToken();
 
         string GenerateJwtToken(AppUser user);
 

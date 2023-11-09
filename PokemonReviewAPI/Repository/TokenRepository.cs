@@ -14,9 +14,15 @@
             _context = context;
         }
 
-        public async Task<RefreshToken> GetRefreshTokenAsync(string token)
+        public async Task<RefreshToken> GetRefreshTokenAsync(string userEmail)
         {
-            return await _context.RefreshTokens.FirstOrDefaultAsync(r => r.Token == token && r.IsActive == true);
+            return await _context.RefreshTokens.FirstOrDefaultAsync(r => r.UserEmail == userEmail);
+        }
+
+        public async Task<bool> AddRefreshTokenAsync(RefreshToken refreshToken)
+        {
+             await _context.RefreshTokens.AddAsync(refreshToken);
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }

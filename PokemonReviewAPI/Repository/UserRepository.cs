@@ -15,9 +15,9 @@
             _context = context;
         }
 
-        public async Task<AppUser> GetAppUserByIdAsync(string id)
+        public async Task<AppUser> GetAppUserAsync(string userEmail)
         {
-            return await _context.AppUsers.Include(r => r.RefreshTokens).FirstOrDefaultAsync(i => i.Id == id);
+            return await _context.AppUsers.Include(r => r.RefreshTokens).FirstOrDefaultAsync(u => u.Email == userEmail);
         }
 
         public async Task<bool> UpdateUserAsync(AppUser user)

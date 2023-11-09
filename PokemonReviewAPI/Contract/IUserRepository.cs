@@ -4,7 +4,8 @@ namespace PokemonReviewAPI.Contract
 {
     public interface IUserRepository
     {
-        Task<AppUser> GetAppUserByIdAsync(string id);
+        Task<AppUser> GetAppUserAsync(string userEmail);
+
         Task<bool> UpdateUserAsync(AppUser user);
     }
 }

@@ -4,6 +4,8 @@ namespace PokemonReviewAPI.Contract
 {
     public interface ITokenRepository
     {
-        Task<RefreshToken> GetRefreshTokenAsync(string token);
+        Task<RefreshToken> GetRefreshTokenAsync(string userEmail);
+
+        Task<bool> AddRefreshTokenAsync(RefreshToken refreshToken);
     }
 }

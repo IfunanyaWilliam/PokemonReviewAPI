@@ -8,6 +8,7 @@
     using PokemonReviewAPI.Contract;
     using Microsoft.AspNetCore.Authorization;
     using Newtonsoft.Json.Linq;
+    using System.Security.Claims;
 
     [Route("api/[controller]")]
     [ApiController]
@@ -15,13 +16,16 @@
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IUserService _userService;
+        private readonly ITokenRepository _tokenRepository;
 
         public AuthenticationController(
             UserManager<AppUser> userManager,
-            IUserService authenticationService)
+            IUserService userService,
+            ITokenRepository tokenRepository)
         {
             _userManager = userManager;
-            _userService = authenticationService;
+            _userService = userService;
+            _tokenRepository = tokenRepository;
         }
 
 
@@ -64,22 +68,21 @@
             }
             
             var jwtToken = _userService.GenerateJwtToken(user);
+            var refreshToken = await _tokenRepository.GetRefreshTokenAsync(user.Email);
 
-            var currentUser = await _userService.GetAppUserByIdAsync(user.Id);
-
-            if (currentUser.RefreshTokens.Any(x => x.IsActive))
+            if (refreshToken.IsActive)
             {
                 return Ok(new AuthResult
                 {
                     IsAuthorized = true,
                     Message = "Login Successful 1",
                     Token = jwtToken,
-                    RefreshToken = user.RefreshTokens.FirstOrDefault(a => a.IsActive).Token
+                    RefreshToken = refreshToken.Token
                 });
             }
 
-            var refreshToken = _userService.GenerateRefreshToken();
-            var updateUserResult = await _userService.UpdateUserRefreshToken(user, refreshToken);
+            var newRefreshToken = _userService.GenerateRefreshToken();
+            var updateUserResult = await _userService.UpdateUserRefreshToken(user, newRefreshToken);
             if(updateUserResult)
             {
                 return Ok(new AuthResult
@@ -87,10 +90,9 @@
                     IsAuthorized = true,
                     Message = "Login Successful 2",
                     Token = jwtToken,
-                    RefreshToken = refreshToken
+                    RefreshToken = newRefreshToken
                 });
             }
-
 
             return Ok(new AuthResult
             {
@@ -103,9 +105,63 @@
 
         [HttpPost]
         [Route("refresh")]
-        public IActionResult RefreshAccessToken(string token)
+        public async Task<IActionResult> RefreshAccessToken(
+                [FromBody]TokenDto token)
         {
+            if(string.IsNullOrEmpty(token.AccessToken) || string.IsNullOrEmpty(token.RefreshToken))
+            {
+                return BadRequest(new AuthResult
+                {
+                    IsAuthorized = false,
+                    Message = "Token could not be regenerated",
+                    Errors = new List<string> { "Invalid request payload" }
+                });
+            }
 
+            var principal = _userService.GetPrincipalFromExpiredToken(token.AccessToken);
+            var userEmail = principal.FindFirst(ClaimTypes.Email).Value;
+            var user = await _userService.GetAppUserAsync(userEmail);
+
+            if(user == null)
+                return BadRequest(new AuthResult
+                {
+                    IsAuthorized = false,
+                    Message = "Token could not be regenerated",
+                    Errors = new List<string> { "Invalid user request payload" }
+                });
+
+
+            var refreshToken = user.RefreshTokens.FirstOrDefault(x => x.Token == token.RefreshToken);
+
+            if(refreshToken == null || !refreshToken.IsActive)
+                return BadRequest(new AuthResult
+                {
+                    IsAuthorized = false,
+                    Message = "Token could not be regenerated",
+                    Errors = new List<string> { "Invalid request payload" }
+                });
+
+            var newAccessToken = _userService.GenerateJwtToken(user);
+            var newRefreshToken = _userService.GenerateRefreshToken();
+            var result = await _userService.UpdateUserRefreshToken(user, newRefreshToken);
+
+            if(result)
+            {
+                return Ok(new AuthResult
+                {
+                    IsAuthorized = true,
+                    Message = "Token successfully regenerated",
+                    Token = newAccessToken,
+                    RefreshToken = newRefreshToken
+                });
+            }
+
+            return BadRequest(new AuthResult
+            {
+                IsAuthorized = false,
+                Message = "Token could not be regenerated",
+                Errors = new List<string> { "Invalid request payload" }
+            });
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿namespace PokemonReviewAPI.Services
 {
-    using Microsoft.EntityFrameworkCore.Metadata.Internal;
     using Microsoft.IdentityModel.Tokens;
     using PokemonReviewAPI.Contract;
     using PokemonReviewAPI.Models;
@@ -13,17 +12,37 @@
     {
         private readonly IConfiguration _configuration;
         private readonly IUserRepository _userRepository;
+        private readonly ITokenRepository _tokenRepository;
 
         public UserService(IUserRepository userRepository,
-                           IConfiguration configuration)
+                           IConfiguration configuration,
+                           ITokenRepository tokenRepository)
         {
             _configuration = configuration;
             _userRepository = userRepository;
+            _tokenRepository = tokenRepository;
         }
 
-        public async Task<AppUser> GetAppUserByIdAsync(string id)
+        public async Task<AppUser> GetAppUserAsync(string userEmail)
         {
-            return await _userRepository.GetAppUserByIdAsync(id);
+            return await _userRepository.GetAppUserAsync(userEmail);
+        }
+
+        public async Task<bool> UpdateUserRefreshToken(AppUser user, string token)
+        {
+            var refreshToken = new RefreshToken
+            {
+                Token = token,
+                UserEmail = user.Email,
+                Created = DateTime.UtcNow,
+                Expires = DateTime.UtcNow.AddDays(5)
+            };
+
+            var tokenResult = await _tokenRepository.AddRefreshTokenAsync(refreshToken);
+            if (!tokenResult) return false;
+
+            user.RefreshTokens.Add(refreshToken);
+            return await _userRepository.UpdateUserAsync(user);
         }
 
         public string GenerateRefreshToken()
@@ -32,25 +51,6 @@
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
             return Convert.ToBase64String(randomNumber);
-        }
-
-        public RefreshToken GetRefreshToken(string AppUserId,  string RefreshToken)
-        {
-
-        }
-
-        public async Task<bool> UpdateUserRefreshToken(AppUser user, string token)
-        {
-            var refreshToken = new RefreshToken
-            {
-                Token = token,
-                Created = DateTime.UtcNow,
-                Expires = DateTime.UtcNow.AddDays(5),
-                IsActive = true
-            };
-
-            user.RefreshTokens.Add(refreshToken);
-            return await _userRepository.UpdateUserAsync(user);
         }
 
         public string GenerateJwtToken(AppUser user)
@@ -67,7 +67,7 @@
                         new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString())
                     }),
 
-                Expires = DateTime.UtcNow.AddHours(1),
+                Expires = DateTime.UtcNow.AddMinutes(2),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
             };
 
@@ -78,7 +78,7 @@
             return jwtToken;
         }
 
-        public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+        public ClaimsPrincipal GetPrincipalFromExpiredToken(string accessToken)
         {
             var key = Encoding.UTF8.GetBytes(_configuration.GetSection("JwtConfig:Secret").Value);
             var tokenValidationParameters = new TokenValidationParameters()
@@ -88,11 +88,11 @@
                     ValidateIssuer = false,      
                     ValidateAudience = false,      
                     RequireExpirationTime = false,   
-                    ValidateLifetime = true
+                    ValidateLifetime = false
                 };
             var tokenHandler = new JwtSecurityTokenHandler();
             SecurityToken securityToken;
-            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+            var principal = tokenHandler.ValidateToken(accessToken, tokenValidationParameters, out securityToken);
             var jwtSecurityToken = securityToken as JwtSecurityToken;
             if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
                 throw new SecurityTokenException("Invalid token");

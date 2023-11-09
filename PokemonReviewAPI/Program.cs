@@ -69,7 +69,8 @@ builder.Services.AddAuthentication(options =>
           ValidateIssuer = false,      //For Local environment but should be true in production
           ValidateAudience = false,      //For Local environment but should be true in production
           RequireExpirationTime = false,   //For dev environment but should be updated with refresh token
-          ValidateLifetime = true
+          ValidateLifetime = true,
+          ClockSkew = TimeSpan.Zero
       };
   });
 
