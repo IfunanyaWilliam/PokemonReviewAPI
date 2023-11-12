@@ -6,6 +6,10 @@ namespace PokemonReviewAPI.Contract
     {
         Task<RefreshToken> GetRefreshTokenAsync(string userEmail);
 
-        Task<bool> AddRefreshTokenAsync(RefreshToken refreshToken);
+        Task<RefreshToken> AddRefreshTokenAsync(RefreshToken refreshToken);
+
+        Task<bool> UpdateRefreshTokenAsync(RefreshToken refreshToken);
+
+        Task<bool> RevokeRefreshTokenAsync(string token);
     }
 }

@@ -29,7 +29,7 @@
             }
 
             var authResult = await _accountService.RegisterUserAsync(requestDto);
-            return new JsonResult(authResult);
+            return Ok(authResult);
         }
 
     }

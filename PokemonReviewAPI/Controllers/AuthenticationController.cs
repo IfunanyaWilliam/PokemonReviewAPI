@@ -67,7 +67,29 @@
                 });
             }
             
-            var jwtToken = _userService.GenerateJwtToken(user);
+            var accessToken = _userService.GenerateJwtToken(user);
+            if(user.RefreshToken ==  null) //Admin user with no prior refreshToken
+            {
+                var authorizationResults = await CreateAndUpdateUserRefreshToken(user);
+                if (authorizationResults.IsUserModified)
+                {
+                    return Ok(new AuthResult
+                    {
+                        IsAuthorized = true,
+                        Message = "Login Successful 1",
+                        AccessToken = accessToken,
+                        RefreshToken = authorizationResults.RefreshToken.Token
+                    });
+                }
+
+                return BadRequest(new AuthResult
+                {
+                    IsAuthorized = false,
+                    Message = "Login attempt failed",
+                    Errors = new List<string> { "Internal Server Error" }
+                });
+            }
+
             var refreshToken = await _tokenRepository.GetRefreshTokenAsync(user.Email);
 
             if (refreshToken.IsActive)
@@ -75,22 +97,21 @@
                 return Ok(new AuthResult
                 {
                     IsAuthorized = true,
-                    Message = "Login Successful 1",
-                    Token = jwtToken,
+                    Message = "Login Successful 2",
+                    AccessToken = accessToken,
                     RefreshToken = refreshToken.Token
                 });
             }
 
-            var newRefreshToken = _userService.GenerateRefreshToken();
-            var updateUserResult = await _userService.UpdateUserRefreshToken(user, newRefreshToken);
-            if(updateUserResult)
+            var authorizationResult = await CreateAndUpdateUserRefreshToken(user);
+            if (authorizationResult.IsUserModified)
             {
                 return Ok(new AuthResult
                 {
-                    IsAuthorized = true,
-                    Message = "Login Successful 2",
-                    Token = jwtToken,
-                    RefreshToken = newRefreshToken
+                    IsAuthorized= true,
+                    Message = "Login Successful 3",
+                    AccessToken = accessToken,
+                    RefreshToken = authorizationResult.RefreshToken.Token
                 });
             }
 
@@ -120,9 +141,9 @@
 
             var principal = _userService.GetPrincipalFromExpiredToken(token.AccessToken);
             var userEmail = principal.FindFirst(ClaimTypes.Email).Value;
-            var user = await _userService.GetAppUserAsync(userEmail);
+            var user = await _userManager.FindByEmailAsync(userEmail);
 
-            if(user == null)
+            if (user == null)
                 return BadRequest(new AuthResult
                 {
                     IsAuthorized = false,
@@ -131,30 +152,43 @@
                 });
 
 
-            var refreshToken = user.RefreshTokens.FirstOrDefault(x => x.Token == token.RefreshToken);
+            var refreshToken = await _tokenRepository.GetRefreshTokenAsync(userEmail);
 
-            if(refreshToken == null || !refreshToken.IsActive)
+            if(refreshToken is null || refreshToken.Token != token.RefreshToken)
                 return BadRequest(new AuthResult
                 {
                     IsAuthorized = false,
-                    Message = "Token could not be regenerated",
+                    Message = "RefreshToken is null",
                     Errors = new List<string> { "Invalid request payload" }
                 });
 
             var newAccessToken = _userService.GenerateJwtToken(user);
-            var newRefreshToken = _userService.GenerateRefreshToken();
-            var result = await _userService.UpdateUserRefreshToken(user, newRefreshToken);
 
-            if(result)
+            if (refreshToken.IsActive == true)
             {
                 return Ok(new AuthResult
                 {
                     IsAuthorized = true,
                     Message = "Token successfully regenerated",
-                    Token = newAccessToken,
-                    RefreshToken = newRefreshToken
+                    AccessToken = newAccessToken,
+                    RefreshToken = refreshToken.Token
                 });
             }
+
+            
+            var authorizationResult = await CreateAndUpdateUserRefreshToken(user);
+
+            if (authorizationResult.IsRefreshTokenSaved)
+            {
+                return Ok(new AuthResult
+                {
+                    IsAuthorized = true,
+                    Message = "Token successfully regenerated",
+                    AccessToken = newAccessToken,
+                    RefreshToken = authorizationResult.RefreshToken.Token
+                });
+            }
+
 
             return BadRequest(new AuthResult
             {
@@ -162,6 +196,58 @@
                 Message = "Token could not be regenerated",
                 Errors = new List<string> { "Invalid request payload" }
             });
+        }
+
+        [HttpPost]
+        [Route("revoke")]
+        public async Task<IActionResult> RevokeRefreshTokenAsync(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest(new AuthResult
+                {
+                    IsAuthorized = false,
+                    Message = "Token is empty",
+                    Errors = new List<string> { "Invalid request payload" }
+                });
+            }
+
+            var existingRefreshToken = await _tokenRepository.GetRefreshTokenAsync(email);
+            if (existingRefreshToken == null)
+            {
+                return BadRequest(new AuthResult
+                {
+                    IsAuthorized = false,
+                    Message = "Token could not found",
+                    Errors = new List<string> { "Token not revoked" }
+                });
+            }
+
+            existingRefreshToken.Revoked = DateTime.UtcNow;
+            var result =  await _tokenRepository.UpdateRefreshTokenAsync(existingRefreshToken);
+
+            if(result)
+            {
+                return Ok(new AuthResult
+                {
+                    IsAuthorized = false,
+                    Message = "Token revoked"
+                });
+            }
+
+            return BadRequest(new AuthResult
+            {
+                IsAuthorized = false,
+                Message = "Token not revoked",
+                Errors = new List<string> { "Internal Server Error" }
+            });
+        }
+
+        private async Task<Auth.AuthorizationResult> CreateAndUpdateUserRefreshToken(AppUser user)
+        {
+            var refreshToken = _userService.GenerateRefreshToken();
+            var authorizationResult = await _userService.UpdateUserRefreshTokenAsync(user, refreshToken);
+            return authorizationResult;
         }
     }
 }

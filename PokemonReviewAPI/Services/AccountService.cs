@@ -29,6 +29,8 @@
 
             var newUser = new AppUser
             {
+                FirstName = requestDto.FirstName,
+                LastName = requestDto.LastName,
                 Email = requestDto.Email,
                 UserName = requestDto.Email
             };
@@ -50,6 +52,7 @@
 
             return new AuthResult
             {
+                IsAuthorized = false,
                 Message = "User successly registered",
                 Errors = null
             };

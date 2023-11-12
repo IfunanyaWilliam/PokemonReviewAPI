@@ -1,13 +1,12 @@
-﻿using PokemonReviewAPI.Models;
-using System.Security.Claims;
-
-namespace PokemonReviewAPI.Contract
+﻿namespace PokemonReviewAPI.Contract
 {
+    using PokemonReviewAPI.Auth;
+    using PokemonReviewAPI.Models;
+    using System.Security.Claims;
+
     public interface IUserService
     {
-        Task<AppUser> GetAppUserAsync(string userEmail);
-
-        Task<bool> UpdateUserRefreshToken(AppUser user, string token);
+        Task<AuthorizationResult> UpdateUserRefreshTokenAsync(AppUser user, string token);
 
         string GenerateRefreshToken();
 

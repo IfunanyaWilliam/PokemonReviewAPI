@@ -4,10 +4,12 @@ namespace PokemonReviewAPI.Models
 {
     public class AppUser : IdentityUser
     {
-        public override string UserName { get; set; }
+        public string FirstName { get; set; }
 
-        public override string Email { get; set; }
+        public string LastName { get; set; }
 
-        public List<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+        public string? RefreshToken { get; set; }
+
+        public DateTime? RefreshTokenEpirationTime { get; set; }
     }
 }

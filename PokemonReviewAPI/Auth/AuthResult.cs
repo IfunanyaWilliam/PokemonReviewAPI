@@ -4,12 +4,12 @@
 
     public class AuthResult
     {
-        public string? Token { get; set; }
+        public string? AccessToken { get; set; }
 
         [JsonIgnore]
         public string? RefreshToken { get; set; }
 
-        public string Message { get; set; }
+        public string? Message { get; set; }
 
         public List<string>? Errors { get; set; }
 

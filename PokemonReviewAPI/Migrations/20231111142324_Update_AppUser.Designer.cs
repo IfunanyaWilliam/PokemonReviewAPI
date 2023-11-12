@@ -12,8 +12,8 @@ using PokemonReviewAPI.Data;
 namespace PokemonReviewAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20231109171926_Update_RefreshToken")]
-    partial class Update_RefreshToken
+    [Migration("20231111142324_Update_AppUser")]
+    partial class Update_AppUser
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -170,12 +170,19 @@ namespace PokemonReviewAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -200,6 +207,12 @@ namespace PokemonReviewAPI.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("RefreshTokenEpirationTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -207,7 +220,6 @@ namespace PokemonReviewAPI.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("UserName")
-                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
@@ -338,9 +350,6 @@ namespace PokemonReviewAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
 
@@ -359,8 +368,6 @@ namespace PokemonReviewAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
 
                     b.ToTable("RefreshTokens");
                 });
@@ -514,13 +521,6 @@ namespace PokemonReviewAPI.Migrations
                     b.Navigation("Pokemon");
                 });
 
-            modelBuilder.Entity("PokemonReviewAPI.Models.RefreshToken", b =>
-                {
-                    b.HasOne("PokemonReviewAPI.Models.AppUser", null)
-                        .WithMany("RefreshTokens")
-                        .HasForeignKey("AppUserId");
-                });
-
             modelBuilder.Entity("PokemonReviewAPI.Models.Review", b =>
                 {
                     b.HasOne("PokemonReviewAPI.Models.Pokemon", "Pokemon")
@@ -534,11 +534,6 @@ namespace PokemonReviewAPI.Migrations
                     b.Navigation("Pokemon");
 
                     b.Navigation("Reviewer");
-                });
-
-            modelBuilder.Entity("PokemonReviewAPI.Models.AppUser", b =>
-                {
-                    b.Navigation("RefreshTokens");
                 });
 
             modelBuilder.Entity("PokemonReviewAPI.Models.Category", b =>

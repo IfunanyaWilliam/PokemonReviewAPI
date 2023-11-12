@@ -1,7 +1,9 @@
 ﻿namespace PokemonReviewAPI.Services
 {
     using Microsoft.IdentityModel.Tokens;
+    using PokemonReviewAPI.Auth;
     using PokemonReviewAPI.Contract;
+    using PokemonReviewAPI.Data;
     using PokemonReviewAPI.Models;
     using System.IdentityModel.Tokens.Jwt;
     using System.Security.Claims;
@@ -10,25 +12,20 @@
 
     public class UserService : IUserService
     {
+        private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
-        private readonly IUserRepository _userRepository;
         private readonly ITokenRepository _tokenRepository;
 
-        public UserService(IUserRepository userRepository,
+        public UserService(AppDbContext context,
                            IConfiguration configuration,
                            ITokenRepository tokenRepository)
         {
+            _context = context;
             _configuration = configuration;
-            _userRepository = userRepository;
             _tokenRepository = tokenRepository;
         }
 
-        public async Task<AppUser> GetAppUserAsync(string userEmail)
-        {
-            return await _userRepository.GetAppUserAsync(userEmail);
-        }
-
-        public async Task<bool> UpdateUserRefreshToken(AppUser user, string token)
+        public async Task<AuthorizationResult> UpdateUserRefreshTokenAsync(AppUser user, string token)
         {
             var refreshToken = new RefreshToken
             {
@@ -39,10 +36,38 @@
             };
 
             var tokenResult = await _tokenRepository.AddRefreshTokenAsync(refreshToken);
-            if (!tokenResult) return false;
+            if (tokenResult == null)
+                return new AuthorizationResult
+                {
+                    User = user,
+                    RefreshToken = null,
+                    IsUserModified = false,
+                    IsRefreshTokenSaved = false,
+                };
 
-            user.RefreshTokens.Add(refreshToken);
-            return await _userRepository.UpdateUserAsync(user);
+            user.RefreshToken = refreshToken.Token;
+            user.RefreshTokenEpirationTime = refreshToken.Expires;
+            _context.AppUsers.Update(user);
+            var result = await _context.SaveChangesAsync();
+
+            if(result > 0)
+            {
+                return new AuthorizationResult
+                {
+                    User = user,
+                    RefreshToken = refreshToken,
+                    IsRefreshTokenSaved = true,
+                    IsUserModified = true
+                };
+            }
+
+            return new AuthorizationResult 
+            {  
+                User = null, 
+                IsUserModified = false, 
+                RefreshToken = null,  
+                IsRefreshTokenSaved = false, 
+            };
         }
 
         public string GenerateRefreshToken()

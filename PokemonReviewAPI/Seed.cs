@@ -136,7 +136,9 @@ namespace PokemonReviewAPI
             {
                 var defaultUser = new AppUser
                 {
-                    UserName = "WillyJolly",
+                    FirstName = "Willy",
+                    LastName = "Jolly",
+                    UserName = "will@abc.com",
                     Email = "will@abc.com"
                 };
 
@@ -151,7 +153,7 @@ namespace PokemonReviewAPI
                 if (result.Succeeded)
                 {
                     var refreshToken = _userService.GenerateRefreshToken();
-                    await _userService.UpdateUserRefreshToken(defaultUser, refreshToken);
+                    await _userService.UpdateUserRefreshTokenAsync(defaultUser, refreshToken);
                     await _userManager.AddToRoleAsync(defaultUser, AppRoles.ADMIN);
                 }
             }
