@@ -158,7 +158,7 @@
                 return BadRequest(new AuthResult
                 {
                     IsAuthorized = false,
-                    Message = "RefreshToken is null",
+                    Message = "RefreshToken is null or does not match",
                     Errors = new List<string> { "Invalid request payload" }
                 });
 

@@ -11,5 +11,7 @@ namespace PokemonReviewAPI.Contract
         Task<bool> UpdateRefreshTokenAsync(RefreshToken refreshToken);
 
         Task<bool> RevokeRefreshTokenAsync(string token);
+
+        Task DeleteExpiredRefreshTokenAsync();
     }
 }
