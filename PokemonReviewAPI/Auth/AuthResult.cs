@@ -6,7 +6,7 @@
     {
         public string? AccessToken { get; set; }
 
-        [JsonIgnore]
+        //[JsonIgnore]
         public string? RefreshToken { get; set; }
 
         public string? Message { get; set; }

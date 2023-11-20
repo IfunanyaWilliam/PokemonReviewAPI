@@ -13,6 +13,9 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using PokemonReviewAPI.Models;
 using PokemonReviewAPI.Services;
+using Quartz;
+using System.Configuration;
+using PokemonReviewAPI.Jobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +36,15 @@ builder.Services.AddSwaggerGen(options =>
 
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
+
+builder.Services.AddQuartz(q =>
+{
+    q.UseMicrosoftDependencyInjectionJobFactory();
+    q.AddJobAndTrigger<ExpiredRefreshTokenJob>(builder.Configuration);
+});
+
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+
 
 builder.Services.AddScoped<IPokemonRepository, PokemonRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();

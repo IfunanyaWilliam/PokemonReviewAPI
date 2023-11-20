@@ -4,6 +4,7 @@
     using PokemonReviewAPI.Contract;
     using PokemonReviewAPI.Data;
     using PokemonReviewAPI.Models;
+    using System.Linq.Expressions;
     using System.Reflection.Metadata.Ecma335;
 
     public class TokenRepository : ITokenRepository
@@ -20,20 +21,28 @@
             return await _context.RefreshTokens.FirstOrDefaultAsync(r => r.UserEmail == userEmail);
         }
 
-        public async Task<RefreshToken> AddRefreshTokenAsync(RefreshToken refreshToken)
+        public async Task<RefreshToken> AddRefreshTokenAsync(string refreshToken, AppUser user)
         {
-            var refreshTokenExist = await _context.RefreshTokens.
-                                    FirstOrDefaultAsync(u => u.UserEmail == refreshToken.UserEmail);
+            var existingRefreshToken = await _context.RefreshTokens.
+                                    FirstOrDefaultAsync(u => u.UserEmail == user.Email);
 
-            if(refreshTokenExist != null)
+            if(existingRefreshToken != null)
             {
-                if (refreshTokenExist.IsActive == true)
-                    return refreshTokenExist;
+                if (existingRefreshToken.IsActive == true)
+                    return existingRefreshToken;
             }
 
-            await _context.RefreshTokens.AddAsync(refreshToken);
+            var newRefreshToken = new RefreshToken
+            {
+                Token = refreshToken,
+                UserEmail = user.Email,
+                Expires = DateTime.UtcNow.AddMinutes(10),
+                Created = DateTime.UtcNow
+            };
+
+            await _context.RefreshTokens.AddAsync(newRefreshToken);
             var result = await _context.SaveChangesAsync();
-            if (result > 0) return refreshToken;
+            if (result > 0) return newRefreshToken;
 
             return null;
         }
@@ -54,6 +63,20 @@
             existingToken.Revoked = DateTime.UtcNow;
             _context.Update(existingToken);
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task DeleteExpiredRefreshTokenAsync()
+        {
+            Expression<Func<RefreshToken, bool>> predicate = s => !(s.Expires > DateTime.UtcNow && s.Revoked == null);
+
+            var refreshTokens = await _context
+                .RefreshTokens
+                .Where(predicate)
+                .ToListAsync();
+
+            _context.RefreshTokens.RemoveRange(refreshTokens);
+
+            await _context.SaveChangesAsync();
         }
     }
 }

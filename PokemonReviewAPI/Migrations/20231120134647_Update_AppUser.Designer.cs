@@ -12,7 +12,7 @@ using PokemonReviewAPI.Data;
 namespace PokemonReviewAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20231111142324_Update_AppUser")]
+    [Migration("20231120134647_Update_AppUser")]
     partial class Update_AppUser
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -206,12 +206,6 @@ namespace PokemonReviewAPI.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
-
-                    b.Property<string>("RefreshToken")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("RefreshTokenEpirationTime")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");

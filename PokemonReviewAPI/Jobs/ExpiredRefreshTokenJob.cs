@@ -4,14 +4,14 @@
     using Quartz;
 
     [DisallowConcurrentExecution]
-    public class ExpiredRefreshTokenJobs
+    public class ExpiredRefreshTokenJob : IJob
     {
         private readonly ITokenRepository _tokenRepository;
-        private readonly ILogger<ExpiredRefreshTokenJobs> _logger;
+        private readonly ILogger<ExpiredRefreshTokenJob> _logger;
 
-        public ExpiredRefreshTokenJobs(
+        public ExpiredRefreshTokenJob(
             ITokenRepository tokenRepository, 
-            ILogger<ExpiredRefreshTokenJobs> logger)
+            ILogger<ExpiredRefreshTokenJob> logger)
         {
             _tokenRepository = tokenRepository;
             _logger = logger;
@@ -21,7 +21,7 @@
         {
             try
             {
-
+                await _tokenRepository.DeleteExpiredRefreshTokenAsync();
             }
             catch (Exception e)
             {

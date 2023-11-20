@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -65,18 +64,6 @@ namespace PokemonReviewAPI.Migrations
                 type: "nvarchar(max)",
                 nullable: false,
                 defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "RefreshToken",
-                table: "AspNetUsers",
-                type: "nvarchar(max)",
-                nullable: true);
-
-            migrationBuilder.AddColumn<DateTime>(
-                name: "RefreshTokenEpirationTime",
-                table: "AspNetUsers",
-                type: "datetime2",
-                nullable: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -91,14 +78,6 @@ namespace PokemonReviewAPI.Migrations
 
             migrationBuilder.DropColumn(
                 name: "LastName",
-                table: "AspNetUsers");
-
-            migrationBuilder.DropColumn(
-                name: "RefreshToken",
-                table: "AspNetUsers");
-
-            migrationBuilder.DropColumn(
-                name: "RefreshTokenEpirationTime",
                 table: "AspNetUsers");
 
             migrationBuilder.AddColumn<string>(

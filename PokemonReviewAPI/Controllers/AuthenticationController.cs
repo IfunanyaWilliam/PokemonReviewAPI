@@ -6,8 +6,6 @@
     using DTO;
     using PokemonReviewAPI.Models;
     using PokemonReviewAPI.Contract;
-    using Microsoft.AspNetCore.Authorization;
-    using Newtonsoft.Json.Linq;
     using System.Security.Claims;
 
     [Route("api/[controller]")]
@@ -68,58 +66,38 @@
             }
             
             var accessToken = _userService.GenerateJwtToken(user);
-            if(user.RefreshToken ==  null) //Admin user with no prior refreshToken
+            var refreshToken = await _tokenRepository.GetRefreshTokenAsync(user.Email);
+
+            if (refreshToken == null || refreshToken.IsActive == false)
             {
-                var authorizationResults = await CreateAndUpdateUserRefreshToken(user);
-                if (authorizationResults.IsUserModified)
+                var stringToken = _userService.GenerateRefreshToken();
+                var newRefreshToken = await _tokenRepository.AddRefreshTokenAsync(stringToken, user);
+
+                if(newRefreshToken != null)
                 {
                     return Ok(new AuthResult
                     {
                         IsAuthorized = true,
                         Message = "Login Successful 1",
                         AccessToken = accessToken,
-                        RefreshToken = authorizationResults.RefreshToken.Token
+                        RefreshToken = newRefreshToken.Token
                     });
                 }
 
                 return BadRequest(new AuthResult
                 {
                     IsAuthorized = false,
-                    Message = "Login attempt failed",
+                    Message = "Login failed",
                     Errors = new List<string> { "Internal Server Error" }
-                });
-            }
-
-            var refreshToken = await _tokenRepository.GetRefreshTokenAsync(user.Email);
-
-            if (refreshToken.IsActive)
-            {
-                return Ok(new AuthResult
-                {
-                    IsAuthorized = true,
-                    Message = "Login Successful 2",
-                    AccessToken = accessToken,
-                    RefreshToken = refreshToken.Token
-                });
-            }
-
-            var authorizationResult = await CreateAndUpdateUserRefreshToken(user);
-            if (authorizationResult.IsUserModified)
-            {
-                return Ok(new AuthResult
-                {
-                    IsAuthorized= true,
-                    Message = "Login Successful 3",
-                    AccessToken = accessToken,
-                    RefreshToken = authorizationResult.RefreshToken.Token
                 });
             }
 
             return Ok(new AuthResult
             {
-                IsAuthorized = false,
-                Message = "Login attempt failed",
-                Errors = new List<string> { "Internal server error" }
+                IsAuthorized = true,
+                Message = "Login Successful 2",
+                AccessToken = accessToken,
+                RefreshToken = refreshToken.Token
             });
         }
 
@@ -169,23 +147,23 @@
                 return Ok(new AuthResult
                 {
                     IsAuthorized = true,
-                    Message = "Token successfully regenerated",
+                    Message = "Token successfully regenerated 1",
                     AccessToken = newAccessToken,
                     RefreshToken = refreshToken.Token
                 });
             }
 
-            
-            var authorizationResult = await CreateAndUpdateUserRefreshToken(user);
+            var stringToken = _userService.GenerateRefreshToken();
+            var newRefreshToken = await _tokenRepository.AddRefreshTokenAsync(stringToken, user);
 
-            if (authorizationResult.IsRefreshTokenSaved)
+            if (newRefreshToken != null)
             {
                 return Ok(new AuthResult
                 {
                     IsAuthorized = true,
-                    Message = "Token successfully regenerated",
+                    Message = "Token successfully regenerated 2",
                     AccessToken = newAccessToken,
-                    RefreshToken = authorizationResult.RefreshToken.Token
+                    RefreshToken = newRefreshToken.Token
                 });
             }
 
@@ -241,13 +219,6 @@
                 Message = "Token not revoked",
                 Errors = new List<string> { "Internal Server Error" }
             });
-        }
-
-        private async Task<Auth.AuthorizationResult> CreateAndUpdateUserRefreshToken(AppUser user)
-        {
-            var refreshToken = _userService.GenerateRefreshToken();
-            var authorizationResult = await _userService.UpdateUserRefreshTokenAsync(user, refreshToken);
-            return authorizationResult;
         }
     }
 }

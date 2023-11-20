@@ -6,8 +6,6 @@
 
     public interface IUserService
     {
-        Task<AuthorizationResult> UpdateUserRefreshTokenAsync(AppUser user, string token);
-
         string GenerateRefreshToken();
 
         string GenerateJwtToken(AppUser user);

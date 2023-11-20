@@ -12,14 +12,12 @@ namespace PokemonReviewAPI
         private readonly AppDbContext _context;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<AppUser> _userManager;
-        private readonly IUserService _userService;
 
         public Seed(IServiceProvider provider)
         {
             _context = provider.GetRequiredService<AppDbContext>();
             _userManager = provider.GetRequiredService<UserManager<AppUser>>();
             _roleManager = provider.GetRequiredService<RoleManager<IdentityRole>>();
-            _userService = provider.GetRequiredService<IUserService>();
 
         }
 
@@ -152,8 +150,6 @@ namespace PokemonReviewAPI
 
                 if (result.Succeeded)
                 {
-                    var refreshToken = _userService.GenerateRefreshToken();
-                    await _userService.UpdateUserRefreshTokenAsync(defaultUser, refreshToken);
                     await _userManager.AddToRoleAsync(defaultUser, AppRoles.ADMIN);
                 }
             }

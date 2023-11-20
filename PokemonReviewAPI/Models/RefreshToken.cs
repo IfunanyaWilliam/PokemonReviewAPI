@@ -14,6 +14,6 @@
 
         public DateTime? Revoked { get; set; }
 
-        public bool IsActive => Expires >= DateTime.UtcNow && Revoked == null;
+        public bool IsActive => Expires > DateTime.UtcNow && Revoked == null;
     }
 }

@@ -7,9 +7,5 @@ namespace PokemonReviewAPI.Models
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
-
-        public string? RefreshToken { get; set; }
-
-        public DateTime? RefreshTokenEpirationTime { get; set; }
     }
 }
